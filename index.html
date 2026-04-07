@@ -6,7 +6,7 @@
 <meta name="apple-mobile-web-app-capable" content="yes" />
 <meta name="apple-mobile-web-app-status-bar-style" content="default" />
 <meta name="apple-mobile-web-app-title" content="ICU Companion" />
-<title>ICU Care Companion</title>
+<title>錄音筆記</title>
 <link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet" />
 <style>
   *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
@@ -144,15 +144,15 @@
 
     <div class="info-card">
       <div class="info-row">
-        <span class="info-label">Doctor</span>
-        <input class="info-input" id="doctor-name" type="text" placeholder="Tap to enter name" autocomplete="off" />
+        <span class="info-label">醫師</span>
+        <input class="info-input" id="doctor-name" type="text" placeholder="在此輸入姓名" autocomplete="off" />
       </div>
       <div class="info-row">
-        <span class="info-label">Ward / Room</span>
-        <input class="info-input" id="ward-name" type="text" placeholder="e.g. ICU Room 4" autocomplete="off" />
+        <span class="info-label">病房/span>
+        <input class="info-input" id="ward-name" type="text" placeholder="例如：ICU 13" autocomplete="off" />
       </div>
       <div class="info-row">
-        <span class="info-label">Time</span>
+        <span class="info-label">時間</span>
         <span class="info-value" id="live-time"></span>
       </div>
     </div>
@@ -162,9 +162,9 @@
       <button class="record-btn" id="record-btn" onclick="toggleRecording()">
         <svg id="mic-icon" viewBox="0 0 24 24"><path d="M12 2a3 3 0 0 1 3 3v7a3 3 0 0 1-6 0V5a3 3 0 0 1 3-3z"/><path d="M19 10v2a7 7 0 0 1-14 0v-2"/><line x1="12" y1="19" x2="12" y2="22"/><line x1="8" y1="22" x2="16" y2="22"/></svg>
         <svg id="stop-icon" viewBox="0 0 24 24" style="display:none;"><rect x="6" y="6" width="12" height="12" rx="2"/></svg>
-        <span class="btn-label" id="btn-label">Tap to record</span>
+        <span class="btn-label" id="btn-label">按鈕錄音</span>
       </button>
-      <div class="record-status" id="record-status">Hold near the doctor or nurse while they speak</div>
+      <div class="record-status" id="record-status">錄音時請把手機靠近醫生或護士</div>
     </div>
 
     <div class="transcript-card" id="transcript-card" style="display:none;">
@@ -172,12 +172,12 @@
       <textarea class="transcript-edit" id="transcript-area" placeholder="Transcript will appear here. You can also type or paste notes." rows="5"></textarea>
     </div>
     <div class="transcript-card" id="manual-card">
-      <div class="transcript-label">Or type notes manually</div>
-      <textarea class="transcript-edit" id="manual-area" placeholder="Write what the doctor or nurse said..." rows="4"></textarea>
+      <div class="transcript-label">或是手動輸入筆記</div>
+      <textarea class="transcript-edit" id="manual-area" placeholder="寫下醫師或護士說的..." rows="4"></textarea>
     </div>
 
     <div class="action-row">
-      <button class="btn btn-primary btn-full" onclick="saveCurrentNote()" id="save-btn">Save note</button>
+      <button class="btn btn-primary btn-full" onclick="saveCurrentNote()" id="save-btn">儲存筆記</button>
     </div>
   </div>
   <nav class="bottom-nav" id="nav-record">

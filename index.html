@@ -417,18 +417,21 @@ async function loadNotes() {
 // ── RECORDING ──
 function toggleRecording() { isRecording ? stopRecording() : startRecording(); }
 
-function startRecording() {
+function setRecordingUI(on) {
+  document.getElementById('record-btn').classList.toggle('recording', on);
+  document.getElementById('mic-icon').style.display = on ? 'none' : 'block';
+  document.getElementById('stop-icon').style.display = on ? 'block' : 'none';
+  document.getElementById('btn-label').textContent = on ? '點我停止' : '點我開始錄音';
+}
+
+function startRecognition() {
+  if (!isRecording) return; // guard: don't restart if already stopped
   const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
-  if (!SR) {
-    document.getElementById('record-status').textContent = '此裝置不支援語音辨識，請使用下方手動輸入。';
-    document.getElementById('transcript-card').style.display = 'block';
-    return;
-  }
-  accumulatedTranscript = '';
   recognition = new SR();
   recognition.continuous = true;
   recognition.interimResults = true;
   recognition.lang = 'zh-TW';
+
   recognition.onresult = (e) => {
     let interim = '', final = '';
     for (let i = e.resultIndex; i < e.results.length; i++) {
@@ -439,33 +442,73 @@ function startRecording() {
     document.getElementById('transcript-area').value = accumulatedTranscript + interim;
     document.getElementById('transcript-card').style.display = 'block';
   };
+
   recognition.onerror = (e) => {
-    if (e.error !== 'no-speech') { document.getElementById('record-status').textContent = '麥克風發生錯誤，請改用手動輸入。'; stopRecording(); }
+    // 'no-speech' and 'aborted' are normal — ignore them
+    if (e.error === 'no-speech' || e.error === 'aborted') return;
+    document.getElementById('record-status').textContent = '麥克風發生錯誤（' + e.error + '），請改用手動輸入。';
+    stopRecording();
   };
-  recognition.onend = () => { if (isRecording) recognition.start(); };
-  recognition.start();
-  isRecording = true; recordSeconds = 0;
-  document.getElementById('record-btn').classList.add('recording');
-  document.getElementById('mic-icon').style.display = 'none';
-  document.getElementById('stop-icon').style.display = 'block';
-  document.getElementById('btn-label').textContent = '點我停止';
+
+  // iOS PWA fix: wrap restart in setTimeout to avoid lock-up
+  recognition.onend = () => {
+    if (isRecording) setTimeout(() => startRecognition(), 150);
+  };
+
+  try {
+    recognition.start();
+  } catch(err) {
+    // already started — ignore
+  }
+}
+
+async function startRecording() {
+  const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
+  if (!SR) {
+    document.getElementById('record-status').textContent = '此裝置不支援語音辨識，請使用下方手動輸入。';
+    document.getElementById('transcript-card').style.display = 'block';
+    return;
+  }
+
+  // iOS PWA fix: explicitly request mic permission first before touching SR
+  try {
+    document.getElementById('record-status').textContent = '請允許使用麥克風⋯⋯';
+    const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+    // permission granted — release the stream, SR will open its own
+    stream.getTracks().forEach(t => t.stop());
+  } catch(err) {
+    document.getElementById('record-status').textContent = '無法取得麥克風權限，請在設定中允許。';
+    return;
+  }
+
+  accumulatedTranscript = '';
+  isRecording = true;
+  recordSeconds = 0;
+
+  setRecordingUI(true);
   document.getElementById('record-status').textContent = '錄音中⋯⋯請將手機靠近說話者';
   document.getElementById('transcript-card').style.display = 'block';
+
+  startRecognition();
+
   timerInterval = setInterval(() => {
     recordSeconds++;
-    const m = String(Math.floor(recordSeconds/60)).padStart(2,'0');
-    const s = String(recordSeconds%60).padStart(2,'0');
+    const m = String(Math.floor(recordSeconds / 60)).padStart(2, '0');
+    const s = String(recordSeconds % 60).padStart(2, '0');
     document.getElementById('record-timer').textContent = m + '：' + s;
   }, 1000);
 }
 
 function stopRecording() {
-  if (recognition) { recognition.onend = null; recognition.stop(); }
-  isRecording = false; clearInterval(timerInterval);
-  document.getElementById('record-btn').classList.remove('recording');
-  document.getElementById('mic-icon').style.display = 'block';
-  document.getElementById('stop-icon').style.display = 'none';
-  document.getElementById('btn-label').textContent = '點我開始錄音';
+  isRecording = false; // set first so onend guard fires correctly
+  clearInterval(timerInterval);
+  if (recognition) {
+    recognition.onend = null; // detach before stop to prevent any restart
+    recognition.onerror = null;
+    try { recognition.stop(); } catch(e) {}
+    recognition = null;
+  }
+  setRecordingUI(false);
   document.getElementById('record-status').textContent = '錄音結束，請確認文字後儲存。';
 }
 

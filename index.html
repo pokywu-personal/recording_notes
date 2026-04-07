@@ -1,193 +1,549 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Family Update Tool</title>
-    <script src="https://cdn.tailwindcss.com"></script>
-    <style>
-        .record-btn {
-            transition: all 0.3s ease;
-            touch-action: manipulation;
-        }
-        .recording {
-            animation: pulse 1.5s infinite;
-            background-color: #ef4444 !important;
-        }
-        @keyframes pulse {
-            0% { transform: scale(1); box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.7); }
-            70% { transform: scale(1.05); box-shadow: 0 0 0 20px rgba(239, 68, 68, 0); }
-            100% { transform: scale(1); box-shadow: 0 0 0 0 rgba(239, 68, 68, 0); }
-        }
-        .hidden { display: none; }
-    </style>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+<meta name="apple-mobile-web-app-capable" content="yes" />
+<meta name="apple-mobile-web-app-status-bar-style" content="default" />
+<meta name="apple-mobile-web-app-title" content="ICU Companion" />
+<title>ICU Care Companion</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet" />
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
+  :root {
+    --cream: #FAF8F4;
+    --ink: #1A1A18;
+    --ink2: #4A4A44;
+    --ink3: #8A8A82;
+    --border: rgba(26,26,24,0.12);
+    --border2: rgba(26,26,24,0.22);
+    --accent: #2B5BA8;
+    --accent-light: #EBF1FA;
+    --success: #2A7A4B;
+    --success-light: #EAF5EF;
+    --danger: #B83232;
+    --danger-light: #FAEAEA;
+    --amber: #A05C10;
+    --amber-light: #FDF3E7;
+    --card: #FFFFFF;
+    --shadow: 0 2px 12px rgba(26,26,24,0.08);
+    --shadow-lg: 0 8px 32px rgba(26,26,24,0.14);
+  }
+  html, body { height: 100%; background: var(--cream); color: var(--ink); font-family: 'DM Sans', sans-serif; }
+
+  /* LAYOUT */
+  .screen { display: none; flex-direction: column; height: 100vh; max-width: 480px; margin: 0 auto; }
+  .screen.active { display: flex; }
+  .screen-body { flex: 1; overflow-y: auto; padding: 0 18px 100px; -webkit-overflow-scrolling: touch; }
+  .bottom-nav { position: fixed; bottom: 0; left: 50%; transform: translateX(-50%); width: 100%; max-width: 480px; background: rgba(250,248,244,0.95); backdrop-filter: blur(10px); border-top: 0.5px solid var(--border); display: flex; z-index: 100; }
+  .nav-btn { flex: 1; display: flex; flex-direction: column; align-items: center; gap: 3px; padding: 10px 4px 14px; font-size: 11px; color: var(--ink3); background: none; border: none; cursor: pointer; font-family: 'DM Sans', sans-serif; transition: color 0.15s; }
+  .nav-btn.active { color: var(--accent); }
+  .nav-btn svg { width: 22px; height: 22px; stroke: currentColor; fill: none; stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round; }
+
+  /* HEADER */
+  .page-header { padding: 20px 0 10px; }
+  .page-header .date-line { font-size: 13px; color: var(--ink3); font-weight: 400; }
+  .page-header h1 { font-family: 'DM Serif Display', serif; font-size: 30px; font-weight: 400; line-height: 1.2; color: var(--ink); margin-top: 2px; }
+  .page-header .subtitle { font-size: 14px; color: var(--ink2); margin-top: 4px; }
+
+  /* RECORD SCREEN */
+  .record-hero { margin: 18px 0 10px; }
+  .info-card { background: var(--card); border: 0.5px solid var(--border); border-radius: 16px; padding: 16px 18px; margin-bottom: 14px; box-shadow: var(--shadow); }
+  .info-row { display: flex; align-items: center; gap: 12px; padding: 10px 0; border-bottom: 0.5px solid var(--border); }
+  .info-row:last-child { border-bottom: none; padding-bottom: 0; }
+  .info-row:first-child { padding-top: 0; }
+  .info-label { font-size: 13px; color: var(--ink3); width: 90px; flex-shrink: 0; }
+  .info-value { font-size: 15px; color: var(--ink); font-weight: 500; flex: 1; }
+  .info-input { font-size: 15px; color: var(--ink); font-weight: 500; flex: 1; border: none; background: transparent; font-family: 'DM Sans', sans-serif; outline: none; padding: 0; }
+  .info-input::placeholder { color: var(--ink3); font-weight: 400; }
+
+  /* BIG RECORD BUTTON */
+  .record-btn-wrap { display: flex; flex-direction: column; align-items: center; margin: 28px 0 20px; gap: 14px; }
+  .record-btn { width: 160px; height: 160px; border-radius: 50%; border: none; background: var(--accent); cursor: pointer; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 8px; box-shadow: 0 6px 30px rgba(43,91,168,0.35); transition: transform 0.15s, box-shadow 0.15s; position: relative; -webkit-appearance: none; }
+  .record-btn:active { transform: scale(0.95); box-shadow: 0 4px 16px rgba(43,91,168,0.28); }
+  .record-btn.recording { background: var(--danger); box-shadow: 0 6px 30px rgba(184,50,50,0.35); animation: breathe 1.8s ease-in-out infinite; }
+  .record-btn svg { width: 48px; height: 48px; stroke: #fff; fill: none; stroke-width: 1.6; stroke-linecap: round; stroke-linejoin: round; }
+  .record-btn .btn-label { font-size: 13px; font-weight: 500; color: rgba(255,255,255,0.9); letter-spacing: 0.02em; }
+  @keyframes breathe { 0%,100% { box-shadow: 0 6px 30px rgba(184,50,50,0.35); } 50% { box-shadow: 0 6px 50px rgba(184,50,50,0.6), 0 0 0 18px rgba(184,50,50,0.1); } }
+  .record-status { font-size: 14px; color: var(--ink3); text-align: center; min-height: 20px; }
+  .record-timer { font-size: 28px; font-family: 'DM Serif Display', serif; color: var(--ink); text-align: center; min-height: 36px; }
+
+  /* TRANSCRIPT AREA */
+  .transcript-card { background: var(--card); border: 0.5px solid var(--border); border-radius: 16px; padding: 16px 18px; margin-bottom: 14px; box-shadow: var(--shadow); }
+  .transcript-label { font-size: 12px; color: var(--ink3); margin-bottom: 8px; text-transform: uppercase; letter-spacing: 0.06em; }
+  .transcript-text { font-size: 15px; color: var(--ink); line-height: 1.65; min-height: 80px; }
+  .transcript-text.placeholder { color: var(--ink3); font-style: italic; }
+  textarea.transcript-edit { width: 100%; border: none; background: transparent; font-size: 15px; font-family: 'DM Sans', sans-serif; color: var(--ink); line-height: 1.65; outline: none; resize: none; min-height: 100px; }
+
+  /* ACTION BUTTONS */
+  .action-row { display: flex; gap: 10px; margin-bottom: 14px; }
+  .btn { border-radius: 12px; border: 0.5px solid var(--border2); background: var(--card); color: var(--ink); font-size: 15px; font-family: 'DM Sans', sans-serif; font-weight: 500; padding: 14px 20px; cursor: pointer; flex: 1; transition: background 0.15s, transform 0.1s; -webkit-appearance: none; }
+  .btn:active { transform: scale(0.97); background: #f0ede8; }
+  .btn-primary { background: var(--accent); color: #fff; border-color: var(--accent); box-shadow: 0 3px 12px rgba(43,91,168,0.25); }
+  .btn-primary:active { background: #1e4a8c; }
+  .btn-full { width: 100%; }
+  .btn-sm { font-size: 13px; padding: 10px 16px; flex: none; }
+
+  /* NOTES LIST */
+  .section-header { display: flex; justify-content: space-between; align-items: center; padding: 20px 0 12px; }
+  .section-header h2 { font-family: 'DM Serif Display', serif; font-size: 22px; font-weight: 400; }
+  .note-card { background: var(--card); border: 0.5px solid var(--border); border-radius: 16px; padding: 16px 18px; margin-bottom: 12px; box-shadow: var(--shadow); }
+  .note-top { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 10px; }
+  .note-meta-group { display: flex; flex-direction: column; gap: 3px; }
+  .note-doc { font-size: 15px; font-weight: 500; color: var(--ink); }
+  .note-time { font-size: 12px; color: var(--ink3); }
+  .badge { font-size: 11px; font-weight: 500; padding: 3px 10px; border-radius: 20px; }
+  .badge-recorded { background: var(--accent-light); color: var(--accent); }
+  .badge-manual { background: var(--amber-light); color: var(--amber); }
+  .note-body { font-size: 14px; color: var(--ink2); line-height: 1.65; }
+  .note-actions { display: flex; gap: 8px; margin-top: 12px; }
+  .btn-ghost { background: none; border: 0.5px solid var(--border2); border-radius: 10px; color: var(--ink2); font-size: 13px; font-family: 'DM Sans', sans-serif; padding: 7px 14px; cursor: pointer; }
+  .btn-ghost.danger { color: var(--danger); border-color: rgba(184,50,50,0.25); }
+  .empty-state { text-align: center; padding: 60px 20px; color: var(--ink3); }
+  .empty-state .icon { font-size: 40px; margin-bottom: 12px; }
+  .empty-state p { font-size: 15px; line-height: 1.6; }
+
+  /* SUMMARY SCREEN */
+  .summary-card { background: var(--card); border: 0.5px solid var(--border); border-radius: 16px; padding: 18px; margin-bottom: 14px; box-shadow: var(--shadow); }
+  .summary-card h3 { font-size: 13px; text-transform: uppercase; letter-spacing: 0.06em; color: var(--ink3); margin-bottom: 12px; }
+  .summary-text { font-size: 15px; color: var(--ink); line-height: 1.7; }
+  .summary-placeholder { font-size: 14px; color: var(--ink3); font-style: italic; line-height: 1.65; }
+  .question-item { display: flex; align-items: flex-start; gap: 10px; padding: 10px 0; border-bottom: 0.5px solid var(--border); }
+  .question-item:last-child { border-bottom: none; }
+  .q-dot { width: 8px; height: 8px; background: var(--accent); border-radius: 50%; margin-top: 6px; flex-shrink: 0; }
+  .q-text { font-size: 14px; color: var(--ink); line-height: 1.6; flex: 1; }
+  .med-item { display: flex; align-items: center; gap: 10px; padding: 10px 0; border-bottom: 0.5px solid var(--border); }
+  .med-item:last-child { border-bottom: none; }
+  .med-dot { width: 8px; height: 8px; background: var(--success); border-radius: 50%; flex-shrink: 0; }
+  .med-text { font-size: 14px; color: var(--ink); }
+  .loading-dots::after { content: ''; animation: dots 1.2s infinite; }
+  @keyframes dots { 0%{content:'.'} 33%{content:'..'} 66%{content:'...'} 100%{content:'.'} }
+
+  /* TOAST */
+  .toast { position: fixed; bottom: 90px; left: 50%; transform: translateX(-50%) translateY(20px); background: var(--ink); color: #fff; font-size: 14px; padding: 10px 20px; border-radius: 30px; opacity: 0; transition: all 0.3s; pointer-events: none; white-space: nowrap; z-index: 999; }
+  .toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+
+  /* DIALOG */
+  .dialog-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.4); z-index: 200; align-items: flex-end; }
+  .dialog-overlay.open { display: flex; }
+  .dialog { background: var(--cream); border-radius: 24px 24px 0 0; padding: 24px 20px 40px; width: 100%; max-width: 480px; margin: 0 auto; }
+  .dialog h3 { font-family: 'DM Serif Display', serif; font-size: 22px; font-weight: 400; margin-bottom: 8px; }
+  .dialog p { font-size: 14px; color: var(--ink2); line-height: 1.6; margin-bottom: 18px; }
+  .dialog-actions { display: flex; gap: 10px; }
+</style>
 </head>
-<body class="bg-gray-50 font-sans text-gray-900">
+<body>
 
-    <nav class="fixed bottom-0 w-full bg-white border-t border-gray-200 flex justify-around py-4 z-50">
-        <button onclick="showTab('home')" class="flex flex-col items-center text-blue-600">
-            <span class="text-xs font-bold">RECORD</span>
-        </button>
-        <button onclick="showTab('records')" class="flex flex-col items-center text-gray-500">
-            <span class="text-xs font-bold">RECORDS</span>
-        </button>
-    </nav>
+<!-- RECORD SCREEN -->
+<div class="screen active" id="screen-record">
+  <div class="screen-body">
+    <div class="page-header">
+      <div class="date-line" id="today-date"></div>
+      <h1>ICU Care Companion</h1>
+    </div>
 
-    <main id="home-tab" class="p-6 pb-24">
-        <header class="mb-8">
-            <h1 id="current-date" class="text-3xl font-bold text-gray-800"></h1>
-            <p id="current-time" class="text-xl text-gray-500"></p>
-        </header>
+    <div class="info-card">
+      <div class="info-row">
+        <span class="info-label">Doctor</span>
+        <input class="info-input" id="doctor-name" type="text" placeholder="Tap to enter name" autocomplete="off" />
+      </div>
+      <div class="info-row">
+        <span class="info-label">Ward / Room</span>
+        <input class="info-input" id="ward-name" type="text" placeholder="e.g. ICU Room 4" autocomplete="off" />
+      </div>
+      <div class="info-row">
+        <span class="info-label">Time</span>
+        <span class="info-value" id="live-time"></span>
+      </div>
+    </div>
 
-        <section class="space-y-6">
-            <div>
-                <label class="block text-sm font-semibold text-gray-600 mb-2 uppercase tracking-wide">Doctor / Nurse Name</label>
-                <input type="text" id="doc-name" placeholder="Who is speaking?" 
-                    class="w-full p-4 text-lg border-2 border-gray-200 rounded-xl focus:border-blue-500 outline-none transition-colors">
-            </div>
+    <div class="record-btn-wrap">
+      <div class="record-timer" id="record-timer"></div>
+      <button class="record-btn" id="record-btn" onclick="toggleRecording()">
+        <svg id="mic-icon" viewBox="0 0 24 24"><path d="M12 2a3 3 0 0 1 3 3v7a3 3 0 0 1-6 0V5a3 3 0 0 1 3-3z"/><path d="M19 10v2a7 7 0 0 1-14 0v-2"/><line x1="12" y1="19" x2="12" y2="22"/><line x1="8" y1="22" x2="16" y2="22"/></svg>
+        <svg id="stop-icon" viewBox="0 0 24 24" style="display:none;"><rect x="6" y="6" width="12" height="12" rx="2"/></svg>
+        <span class="btn-label" id="btn-label">Tap to record</span>
+      </button>
+      <div class="record-status" id="record-status">Hold near the doctor or nurse while they speak</div>
+    </div>
 
-            <div class="flex flex-col items-center justify-center py-12">
-                <button id="record-btn" onclick="toggleRecording()" 
-                    class="record-btn w-48 h-48 rounded-full bg-blue-600 text-white shadow-2xl flex flex-col items-center justify-center border-8 border-white">
-                    <span id="btn-icon" class="text-4xl mb-2">●</span>
-                    <span id="btn-text" class="text-lg font-bold">START</span>
-                </button>
-                <p id="status-msg" class="mt-6 text-gray-500 font-medium italic">Ready to record notes...</p>
-            </div>
+    <div class="transcript-card" id="transcript-card" style="display:none;">
+      <div class="transcript-label">Transcript</div>
+      <textarea class="transcript-edit" id="transcript-area" placeholder="Transcript will appear here. You can also type or paste notes." rows="5"></textarea>
+    </div>
+    <div class="transcript-card" id="manual-card">
+      <div class="transcript-label">Or type notes manually</div>
+      <textarea class="transcript-edit" id="manual-area" placeholder="Write what the doctor or nurse said..." rows="4"></textarea>
+    </div>
 
-            <div id="live-transcript" class="p-4 bg-blue-50 border border-blue-100 rounded-xl hidden">
-                <p class="text-sm text-blue-800 italic">Live Transcript: <span id="transcript-text" class="text-gray-700 not-italic"></span></p>
-            </div>
-        </section>
-    </main>
+    <div class="action-row">
+      <button class="btn btn-primary btn-full" onclick="saveCurrentNote()" id="save-btn">Save note</button>
+    </div>
+  </div>
+  <nav class="bottom-nav" id="nav-record">
+    <button class="nav-btn active" onclick="switchScreen('record')">
+      <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="3" fill="currentColor" stroke="none"/></svg>
+      Record
+    </button>
+    <button class="nav-btn" onclick="switchScreen('notes')">
+      <svg viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><polyline points="10 9 9 9 8 9"/></svg>
+      Notes
+    </button>
+    <button class="nav-btn" onclick="switchScreen('summary')">
+      <svg viewBox="0 0 24 24"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg>
+      Summary
+    </button>
+  </nav>
+</div>
 
-    <main id="records-tab" class="p-6 pb-24 hidden">
-        <h2 class="text-2xl font-bold mb-6">Saved Records</h2>
-        <div id="records-list" class="space-y-4">
-            </div>
-    </main>
+<!-- NOTES SCREEN -->
+<div class="screen" id="screen-notes">
+  <div class="screen-body">
+    <div class="section-header">
+      <h2>All notes</h2>
+      <span id="note-count-badge" style="font-size:13px; color:var(--ink3);">0 notes</span>
+    </div>
+    <div id="notes-list"></div>
+  </div>
+  <nav class="bottom-nav">
+    <button class="nav-btn" onclick="switchScreen('record')">
+      <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="3" fill="currentColor" stroke="none"/></svg>
+      Record
+    </button>
+    <button class="nav-btn active" onclick="switchScreen('notes')">
+      <svg viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><polyline points="10 9 9 9 8 9"/></svg>
+      Notes
+    </button>
+    <button class="nav-btn" onclick="switchScreen('summary')">
+      <svg viewBox="0 0 24 24"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg>
+      Summary
+    </button>
+  </nav>
+</div>
 
-    <script>
-        // Update clock every second
-        function updateClock() {
-            const now = new Date();
-            document.getElementById('current-date').innerText = now.toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric' });
-            document.getElementById('current-time').innerText = now.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' });
-        }
-        setInterval(updateClock, 1000);
-        updateClock();
+<!-- SUMMARY SCREEN -->
+<div class="screen" id="screen-summary">
+  <div class="screen-body">
+    <div class="page-header">
+      <div class="date-line" id="summary-date"></div>
+      <h1>Daily summary</h1>
+    </div>
 
-        // Tab Management
-        function showTab(tab) {
-            document.getElementById('home-tab').classList.toggle('hidden', tab !== 'home');
-            document.getElementById('records-tab').classList.toggle('hidden', tab !== 'records');
-            if (tab === 'records') loadRecords();
-        }
+    <div class="summary-card">
+      <h3>Status overview</h3>
+      <div class="summary-text" id="summary-overview">
+        <span class="summary-placeholder">Tap "Generate summary" below after adding notes to get a plain-language overview of today's care.</span>
+      </div>
+    </div>
 
-        // Speech Recognition Setup
-        const recordBtn = document.getElementById('record-btn');
-        const btnText = document.getElementById('btn-text');
-        const statusMsg = document.getElementById('status-msg');
-        const liveTranscript = document.getElementById('live-transcript');
-        const transcriptText = document.getElementById('transcript-text');
+    <div class="summary-card">
+      <h3>Medications mentioned</h3>
+      <div id="meds-list"><span class="summary-placeholder">Will appear after generating summary.</span></div>
+    </div>
 
-        let isRecording = false;
-        let recognition;
-        let finalTranscript = "";
+    <div class="summary-card">
+      <h3>Questions to ask next visit</h3>
+      <div id="questions-list"><span class="summary-placeholder">Will appear after generating summary.</span></div>
+    </div>
 
-        if ('webkitSpeechRecognition' in window) {
-            recognition = new webkitSpeechRecognition();
-            recognition.continuous = true;
-            recognition.interimResults = true;
+    <button class="btn btn-primary btn-full" id="generate-btn" onclick="generateSummary()" style="margin-bottom:14px;">Generate today's summary</button>
+    <button class="btn btn-full" onclick="exportSummary()" style="margin-bottom:14px;">Share / export summary</button>
+  </div>
+  <nav class="bottom-nav">
+    <button class="nav-btn" onclick="switchScreen('record')">
+      <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="3" fill="currentColor" stroke="none"/></svg>
+      Record
+    </button>
+    <button class="nav-btn" onclick="switchScreen('notes')">
+      <svg viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><polyline points="10 9 9 9 8 9"/></svg>
+      Notes
+    </button>
+    <button class="nav-btn active" onclick="switchScreen('summary')">
+      <svg viewBox="0 0 24 24"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg>
+      Summary
+    </button>
+  </nav>
+</div>
 
-            recognition.onresult = (event) => {
-                let interim = "";
-                for (let i = event.resultIndex; i < event.results.length; ++i) {
-                    if (event.results[i].isFinal) {
-                        finalTranscript += event.results[i][0].transcript;
-                    } else {
-                        interim += event.results[i][0].transcript;
-                    }
-                }
-                transcriptText.innerText = finalTranscript + interim;
-            };
+<!-- TOAST -->
+<div class="toast" id="toast"></div>
 
-            recognition.onerror = (event) => {
-                console.error(event.error);
-                stopRecordingManually();
-            };
-        }
+<!-- DELETE CONFIRM DIALOG -->
+<div class="dialog-overlay" id="delete-dialog">
+  <div class="dialog">
+    <h3>Delete this note?</h3>
+    <p>This cannot be undone.</p>
+    <div class="dialog-actions">
+      <button class="btn btn-full" onclick="closeDialog()">Cancel</button>
+      <button class="btn btn-full" id="confirm-delete-btn" style="color:var(--danger); border-color:rgba(184,50,50,0.3);">Delete</button>
+    </div>
+  </div>
+</div>
 
-        function toggleRecording() {
-            if (!isRecording) {
-                startRecording();
-            } else {
-                stopRecording();
-            }
-        }
+<script>
+// STATE
+let notes = JSON.parse(localStorage.getItem('icu_notes') || '[]');
+let recognition = null;
+let isRecording = false;
+let timerInterval = null;
+let recordSeconds = 0;
+let pendingDeleteId = null;
+let accumulatedTranscript = '';
 
-        function startRecording() {
-            finalTranscript = "";
-            transcriptText.innerText = "";
-            isRecording = true;
-            recordBtn.classList.add('recording');
-            btnText.innerText = "STOP";
-            statusMsg.innerText = "Listening to doctors' notes...";
-            liveTranscript.classList.remove('hidden');
-            recognition.start();
-        }
+// SAVE
+function saveNotes() { localStorage.setItem('icu_notes', JSON.stringify(notes)); }
 
-        function stopRecording() {
-            recognition.stop();
-            saveRecord();
-            stopRecordingUI();
-        }
+// SCREEN
+function switchScreen(name) {
+  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+  document.getElementById('screen-' + name).classList.add('active');
+  if (name === 'notes') renderNotes();
+}
 
-        function stopRecordingUI() {
-            isRecording = false;
-            recordBtn.classList.remove('recording');
-            btnText.innerText = "START";
-            statusMsg.innerText = "Note saved successfully.";
-            setTimeout(() => { liveTranscript.classList.add('hidden'); }, 3000);
-        }
+// CLOCK
+function updateClock() {
+  const now = new Date();
+  const timeEl = document.getElementById('live-time');
+  if (timeEl) timeEl.textContent = now.toLocaleTimeString('zh-TW', { hour: '2-digit', minute: '2-digit' });
+}
+function setDateLabels() {
+  const opts = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
+  const d = new Date().toLocaleDateString('zh-TW', opts);
+  document.getElementById('today-date').textContent = d;
+  document.getElementById('summary-date').textContent = d;
+}
+setDateLabels();
+updateClock();
+setInterval(updateClock, 1000);
 
-        function saveRecord() {
-            const docName = document.getElementById('doc-name').value || "Unknown Staff";
-            const newRecord = {
-                id: Date.now(),
-                date: new Date().toLocaleDateString(),
-                time: new Date().toLocaleTimeString(),
-                doctor: docName,
-                text: finalTranscript
-            };
+// TOAST
+function showToast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.classList.add('show');
+  setTimeout(() => t.classList.remove('show'), 2500);
+}
 
-            const records = JSON.parse(localStorage.getItem('icu_notes') || "[]");
-            records.unshift(newRecord);
-            localStorage.setItem('icu_notes', JSON.stringify(records));
-            document.getElementById('doc-name').value = ""; // Reset name
-        }
+// RECORDING
+function toggleRecording() {
+  if (isRecording) stopRecording();
+  else startRecording();
+}
 
-        function loadRecords() {
-            const container = document.getElementById('records-list');
-            const records = JSON.parse(localStorage.getItem('icu_notes') || "[]");
-            
-            if (records.length === 0) {
-                container.innerHTML = `<p class="text-gray-400 text-center py-12">No records yet.</p>`;
-                return;
-            }
+function startRecording() {
+  const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+  if (!SpeechRecognition) {
+    document.getElementById('record-status').textContent = 'Speech recognition not supported. Use the text area below.';
+    document.getElementById('transcript-card').style.display = 'block';
+    return;
+  }
+  accumulatedTranscript = '';
+  recognition = new SpeechRecognition();
+  recognition.continuous = true;
+  recognition.interimResults = true;
+  recognition.lang = 'zh-TW';
 
-            container.innerHTML = records.map(r => `
-                <div class="bg-white p-5 rounded-2xl shadow-sm border border-gray-100">
-                    <div class="flex justify-between items-start mb-2">
-                        <div>
-                            <h3 class="font-bold text-gray-800">${r.doctor}</h3>
-                            <p class="text-xs text-gray-400">${r.date} at ${r.time}</p>
-                        </div>
-                    </div>
-                    <p class="text-gray-600 text-sm leading-relaxed">${r.text || "No speech detected."}</p>
-                </div>
-            `).join('');
-        }
-    </script>
+  recognition.onresult = (e) => {
+    let interim = '';
+    let final = '';
+    for (let i = e.resultIndex; i < e.results.length; i++) {
+      if (e.results[i].isFinal) final += e.results[i][0].transcript + ' ';
+      else interim += e.results[i][0].transcript;
+    }
+    if (final) accumulatedTranscript += final;
+    document.getElementById('transcript-area').value = accumulatedTranscript + interim;
+    document.getElementById('transcript-card').style.display = 'block';
+  };
+
+  recognition.onerror = (e) => {
+    if (e.error !== 'no-speech') {
+      document.getElementById('record-status').textContent = 'Mic error. Please type notes below.';
+      stopRecording();
+    }
+  };
+
+  recognition.onend = () => {
+    if (isRecording) recognition.start();
+  };
+
+  recognition.start();
+  isRecording = true;
+  recordSeconds = 0;
+
+  document.getElementById('record-btn').classList.add('recording');
+  document.getElementById('mic-icon').style.display = 'none';
+  document.getElementById('stop-icon').style.display = 'block';
+  document.getElementById('btn-label').textContent = 'Tap to stop';
+  document.getElementById('record-status').textContent = 'Recording… speak clearly near the phone';
+  document.getElementById('transcript-card').style.display = 'block';
+
+  timerInterval = setInterval(() => {
+    recordSeconds++;
+    const m = String(Math.floor(recordSeconds / 60)).padStart(2, '0');
+    const s = String(recordSeconds % 60).padStart(2, '0');
+    document.getElementById('record-timer').textContent = m + ':' + s;
+  }, 1000);
+}
+
+function stopRecording() {
+  if (recognition) { recognition.onend = null; recognition.stop(); }
+  isRecording = false;
+  clearInterval(timerInterval);
+  document.getElementById('record-btn').classList.remove('recording');
+  document.getElementById('mic-icon').style.display = 'block';
+  document.getElementById('stop-icon').style.display = 'none';
+  document.getElementById('btn-label').textContent = 'Tap to record';
+  document.getElementById('record-status').textContent = 'Recording stopped. Review and save below.';
+}
+
+// SAVE NOTE
+function saveCurrentNote() {
+  const transcript = document.getElementById('transcript-area').value.trim();
+  const manual = document.getElementById('manual-area').value.trim();
+  const text = transcript || manual;
+  if (!text) { showToast('Please record or type a note first.'); return; }
+
+  const note = {
+    id: Date.now(),
+    doctor: document.getElementById('doctor-name').value.trim() || 'Unknown',
+    ward: document.getElementById('ward-name').value.trim(),
+    date: new Date().toLocaleDateString('zh-TW'),
+    time: new Date().toLocaleTimeString('zh-TW', { hour: '2-digit', minute: '2-digit' }),
+    text,
+    type: transcript ? 'recorded' : 'manual'
+  };
+
+  notes.unshift(note);
+  saveNotes();
+  document.getElementById('note-count-badge') && (document.getElementById('note-count-badge').textContent = notes.length + ' note' + (notes.length !== 1 ? 's' : ''));
+
+  document.getElementById('transcript-area').value = '';
+  document.getElementById('manual-area').value = '';
+  document.getElementById('record-timer').textContent = '';
+  document.getElementById('record-status').textContent = 'Hold near the doctor or nurse while they speak';
+  document.getElementById('transcript-card').style.display = 'none';
+  accumulatedTranscript = '';
+
+  showToast('Note saved!');
+}
+
+// RENDER NOTES
+function renderNotes() {
+  const list = document.getElementById('notes-list');
+  const badge = document.getElementById('note-count-badge');
+  if (badge) badge.textContent = notes.length + ' note' + (notes.length !== 1 ? 's' : '');
+
+  if (!notes.length) {
+    list.innerHTML = '<div class="empty-state"><div class="icon">📋</div><p>No notes yet.<br>Go to Record to capture your first conversation.</p></div>';
+    return;
+  }
+  list.innerHTML = notes.map(n => `
+    <div class="note-card" id="note-${n.id}">
+      <div class="note-top">
+        <div class="note-meta-group">
+          <div class="note-doc">${n.doctor}</div>
+          <div class="note-time">${n.date} · ${n.time}${n.ward ? ' · ' + n.ward : ''}</div>
+        </div>
+        <span class="badge badge-${n.type}">${n.type === 'recorded' ? '🎙 Recorded' : '✏️ Manual'}</span>
+      </div>
+      <div class="note-body">${n.text.replace(/\n/g,'<br>').substring(0, 300)}${n.text.length > 300 ? '…' : ''}</div>
+      <div class="note-actions">
+        <button class="btn-ghost danger" onclick="confirmDelete(${n.id})">Delete</button>
+      </div>
+    </div>
+  `).join('');
+}
+
+// DELETE
+function confirmDelete(id) {
+  pendingDeleteId = id;
+  document.getElementById('delete-dialog').classList.add('open');
+  document.getElementById('confirm-delete-btn').onclick = () => {
+    notes = notes.filter(n => n.id !== pendingDeleteId);
+    saveNotes();
+    closeDialog();
+    renderNotes();
+    showToast('Note deleted.');
+  };
+}
+function closeDialog() { document.getElementById('delete-dialog').classList.remove('open'); }
+
+// SUMMARY
+async function generateSummary() {
+  if (!notes.length) { showToast('Add some notes first.'); return; }
+  const btn = document.getElementById('generate-btn');
+  btn.disabled = true;
+  btn.textContent = 'Generating';
+  btn.classList.add('loading-dots');
+
+  document.getElementById('summary-overview').innerHTML = '<span class="summary-placeholder">Analyzing notes<span class="loading-dots"></span></span>';
+
+  const notesText = notes.map(n =>
+    `[${n.date} ${n.time}] Doctor: ${n.doctor}${n.ward ? ', ' + n.ward : ''}\n${n.text}`
+  ).join('\n\n---\n\n');
+
+  try {
+    const res = await fetch('https://api.anthropic.com/v1/messages', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        model: 'claude-sonnet-4-20250514',
+        max_tokens: 1000,
+        system: `You are a compassionate assistant helping a family understand their loved one's ICU care. Reply ONLY with valid JSON, no markdown, no backticks.
+
+Format:
+{
+  "overview": "3-4 sentences in plain, warm language summarizing the patient's current condition, key updates, and overall direction.",
+  "medications": ["medication name and brief purpose"],
+  "questions": ["important follow-up question for the medical team"]
+}
+
+Keep language simple and reassuring. Focus on what the family needs to understand and do next.`,
+        messages: [{ role: 'user', content: `ICU notes:\n\n${notesText}` }]
+      })
+    });
+    const data = await res.json();
+    const raw = data.content.map(b => b.text || '').join('');
+    const parsed = JSON.parse(raw.replace(/```json|```/g, '').trim());
+
+    document.getElementById('summary-overview').innerHTML = `<span class="summary-text">${parsed.overview || 'Summary unavailable.'}</span>`;
+
+    const medsEl = document.getElementById('meds-list');
+    medsEl.innerHTML = parsed.medications && parsed.medications.length
+      ? parsed.medications.map(m => `<div class="med-item"><div class="med-dot"></div><div class="med-text">${m}</div></div>`).join('')
+      : '<span class="summary-placeholder">No medications mentioned in notes.</span>';
+
+    const qEl = document.getElementById('questions-list');
+    qEl.innerHTML = parsed.questions && parsed.questions.length
+      ? parsed.questions.map(q => `<div class="question-item"><div class="q-dot"></div><div class="q-text">${q}</div></div>`).join('')
+      : '<span class="summary-placeholder">No questions generated.</span>';
+
+  } catch (e) {
+    document.getElementById('summary-overview').innerHTML = '<span class="summary-placeholder">Could not generate summary. Check your connection and try again.</span>';
+  }
+
+  btn.disabled = false;
+  btn.textContent = 'Generate today\'s summary';
+  btn.classList.remove('loading-dots');
+}
+
+// EXPORT
+function exportSummary() {
+  const overview = document.getElementById('summary-overview').textContent;
+  const meds = document.getElementById('meds-list').textContent;
+  const questions = document.getElementById('questions-list').textContent;
+  const date = new Date().toLocaleDateString('zh-TW');
+  const text = `ICU Care Summary — ${date}\n\n--- Status ---\n${overview}\n\n--- Medications ---\n${meds}\n\n--- Questions for next visit ---\n${questions}`;
+  if (navigator.share) {
+    navigator.share({ title: 'ICU Care Summary', text });
+  } else {
+    navigator.clipboard.writeText(text).then(() => showToast('Summary copied!'));
+  }
+}
+
+// INIT
+renderNotes();
+document.getElementById('note-count-badge').textContent = notes.length + ' note' + (notes.length !== 1 ? 's' : '');
+</script>
 </body>
 </html>

@@ -1,160 +1,131 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="zh-TW">
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
 <meta name="apple-mobile-web-app-capable" content="yes" />
 <meta name="apple-mobile-web-app-status-bar-style" content="default" />
-<meta name="apple-mobile-web-app-title" content="ICU Companion" />
-<title>錄音筆記</title>
-<link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet" />
+<meta name="apple-mobile-web-app-title" content="加護病房助手" />
+<title>加護病房照護助手</title>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Serif+TC:wght@400;500&family=Noto+Sans+TC:wght@300;400;500&display=swap" rel="stylesheet" />
 <style>
   *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
   :root {
-    --cream: #FAF8F4;
-    --ink: #1A1A18;
-    --ink2: #4A4A44;
-    --ink3: #8A8A82;
-    --border: rgba(26,26,24,0.12);
-    --border2: rgba(26,26,24,0.22);
-    --accent: #2B5BA8;
-    --accent-light: #EBF1FA;
-    --success: #2A7A4B;
-    --success-light: #EAF5EF;
-    --danger: #B83232;
-    --danger-light: #FAEAEA;
-    --amber: #A05C10;
-    --amber-light: #FDF3E7;
+    --cream: #FAF8F4; --ink: #1A1A18; --ink2: #4A4A44; --ink3: #8A8A82;
+    --border: rgba(26,26,24,0.12); --border2: rgba(26,26,24,0.22);
+    --accent: #2B5BA8; --accent-light: #EBF1FA;
+    --success: #2A7A4B; --danger: #B83232;
+    --amber: #A05C10; --amber-light: #FDF3E7;
     --card: #FFFFFF;
     --shadow: 0 2px 12px rgba(26,26,24,0.08);
-    --shadow-lg: 0 8px 32px rgba(26,26,24,0.14);
   }
-  html, body { height: 100%; background: var(--cream); color: var(--ink); font-family: 'DM Sans', sans-serif; }
-
-  /* LAYOUT */
+  html, body { height: 100%; background: var(--cream); color: var(--ink); font-family: 'Noto Sans TC', sans-serif; }
   .screen { display: none; flex-direction: column; height: 100vh; max-width: 480px; margin: 0 auto; }
   .screen.active { display: flex; }
   .screen-body { flex: 1; overflow-y: auto; padding: 0 18px 100px; -webkit-overflow-scrolling: touch; }
-  .bottom-nav { position: fixed; bottom: 0; left: 50%; transform: translateX(-50%); width: 100%; max-width: 480px; background: rgba(250,248,244,0.95); backdrop-filter: blur(10px); border-top: 0.5px solid var(--border); display: flex; z-index: 100; }
-  .nav-btn { flex: 1; display: flex; flex-direction: column; align-items: center; gap: 3px; padding: 10px 4px 14px; font-size: 11px; color: var(--ink3); background: none; border: none; cursor: pointer; font-family: 'DM Sans', sans-serif; transition: color 0.15s; }
+  .bottom-nav { position: fixed; bottom: 0; left: 50%; transform: translateX(-50%); width: 100%; max-width: 480px; background: rgba(250,248,244,0.96); backdrop-filter: blur(10px); border-top: 0.5px solid var(--border); display: flex; z-index: 100; }
+  .nav-btn { flex: 1; display: flex; flex-direction: column; align-items: center; gap: 3px; padding: 10px 4px 18px; font-size: 12px; color: var(--ink3); background: none; border: none; cursor: pointer; font-family: 'Noto Sans TC', sans-serif; transition: color 0.15s; }
   .nav-btn.active { color: var(--accent); }
   .nav-btn svg { width: 22px; height: 22px; stroke: currentColor; fill: none; stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round; }
-
-  /* HEADER */
-  .page-header { padding: 20px 0 10px; }
-  .page-header .date-line { font-size: 13px; color: var(--ink3); font-weight: 400; }
-  .page-header h1 { font-family: 'DM Serif Display', serif; font-size: 30px; font-weight: 400; line-height: 1.2; color: var(--ink); margin-top: 2px; }
-  .page-header .subtitle { font-size: 14px; color: var(--ink2); margin-top: 4px; }
-
-  /* RECORD SCREEN */
-  .record-hero { margin: 18px 0 10px; }
+  .page-header { padding: 24px 0 10px; }
+  .page-header .date-line { font-size: 13px; color: var(--ink3); }
+  .page-header h1 { font-family: 'Noto Serif TC', serif; font-size: 26px; font-weight: 500; line-height: 1.3; color: var(--ink); margin-top: 4px; }
   .info-card { background: var(--card); border: 0.5px solid var(--border); border-radius: 16px; padding: 16px 18px; margin-bottom: 14px; box-shadow: var(--shadow); }
-  .info-row { display: flex; align-items: center; gap: 12px; padding: 10px 0; border-bottom: 0.5px solid var(--border); }
+  .info-row { display: flex; align-items: center; gap: 12px; padding: 11px 0; border-bottom: 0.5px solid var(--border); }
   .info-row:last-child { border-bottom: none; padding-bottom: 0; }
   .info-row:first-child { padding-top: 0; }
-  .info-label { font-size: 13px; color: var(--ink3); width: 90px; flex-shrink: 0; }
-  .info-value { font-size: 15px; color: var(--ink); font-weight: 500; flex: 1; }
-  .info-input { font-size: 15px; color: var(--ink); font-weight: 500; flex: 1; border: none; background: transparent; font-family: 'DM Sans', sans-serif; outline: none; padding: 0; }
+  .info-label { font-size: 14px; color: var(--ink3); width: 72px; flex-shrink: 0; }
+  .info-value { font-size: 16px; color: var(--ink); font-weight: 500; flex: 1; }
+  .info-input { font-size: 16px; color: var(--ink); font-weight: 500; flex: 1; border: none; background: transparent; font-family: 'Noto Sans TC', sans-serif; outline: none; padding: 0; }
   .info-input::placeholder { color: var(--ink3); font-weight: 400; }
-
-  /* BIG RECORD BUTTON */
-  .record-btn-wrap { display: flex; flex-direction: column; align-items: center; margin: 28px 0 20px; gap: 14px; }
-  .record-btn { width: 160px; height: 160px; border-radius: 50%; border: none; background: var(--accent); cursor: pointer; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 8px; box-shadow: 0 6px 30px rgba(43,91,168,0.35); transition: transform 0.15s, box-shadow 0.15s; position: relative; -webkit-appearance: none; }
-  .record-btn:active { transform: scale(0.95); box-shadow: 0 4px 16px rgba(43,91,168,0.28); }
-  .record-btn.recording { background: var(--danger); box-shadow: 0 6px 30px rgba(184,50,50,0.35); animation: breathe 1.8s ease-in-out infinite; }
-  .record-btn svg { width: 48px; height: 48px; stroke: #fff; fill: none; stroke-width: 1.6; stroke-linecap: round; stroke-linejoin: round; }
-  .record-btn .btn-label { font-size: 13px; font-weight: 500; color: rgba(255,255,255,0.9); letter-spacing: 0.02em; }
-  @keyframes breathe { 0%,100% { box-shadow: 0 6px 30px rgba(184,50,50,0.35); } 50% { box-shadow: 0 6px 50px rgba(184,50,50,0.6), 0 0 0 18px rgba(184,50,50,0.1); } }
-  .record-status { font-size: 14px; color: var(--ink3); text-align: center; min-height: 20px; }
-  .record-timer { font-size: 28px; font-family: 'DM Serif Display', serif; color: var(--ink); text-align: center; min-height: 36px; }
-
-  /* TRANSCRIPT AREA */
+  .hint-card { background: var(--accent-light); border: 0.5px solid rgba(43,91,168,0.2); border-radius: 14px; padding: 14px 16px; margin-bottom: 14px; }
+  .hint-card p { font-size: 13px; color: var(--accent); line-height: 1.75; }
+  .record-btn-wrap { display: flex; flex-direction: column; align-items: center; margin: 20px 0 18px; gap: 16px; }
+  .record-btn { width: 168px; height: 168px; border-radius: 50%; border: none; background: var(--accent); cursor: pointer; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 10px; box-shadow: 0 6px 32px rgba(43,91,168,0.38); transition: transform 0.15s; position: relative; -webkit-appearance: none; }
+  .record-btn:active { transform: scale(0.95); }
+  .record-btn.recording { background: var(--danger); box-shadow: 0 6px 32px rgba(184,50,50,0.38); animation: breathe 1.8s ease-in-out infinite; }
+  .record-btn svg { width: 52px; height: 52px; stroke: #fff; fill: none; stroke-width: 1.6; stroke-linecap: round; stroke-linejoin: round; }
+  .record-btn .btn-label { font-size: 14px; font-weight: 500; color: rgba(255,255,255,0.92); font-family: 'Noto Sans TC', sans-serif; }
+  @keyframes breathe { 0%,100% { box-shadow: 0 6px 32px rgba(184,50,50,0.38); } 50% { box-shadow: 0 6px 52px rgba(184,50,50,0.65), 0 0 0 20px rgba(184,50,50,0.1); } }
+  .record-status { font-size: 14px; color: var(--ink3); text-align: center; min-height: 22px; line-height: 1.6; padding: 0 12px; }
+  .record-timer { font-size: 32px; font-family: 'Noto Serif TC', serif; color: var(--ink); text-align: center; min-height: 40px; letter-spacing: 0.05em; }
   .transcript-card { background: var(--card); border: 0.5px solid var(--border); border-radius: 16px; padding: 16px 18px; margin-bottom: 14px; box-shadow: var(--shadow); }
-  .transcript-label { font-size: 12px; color: var(--ink3); margin-bottom: 8px; text-transform: uppercase; letter-spacing: 0.06em; }
-  .transcript-text { font-size: 15px; color: var(--ink); line-height: 1.65; min-height: 80px; }
-  .transcript-text.placeholder { color: var(--ink3); font-style: italic; }
-  textarea.transcript-edit { width: 100%; border: none; background: transparent; font-size: 15px; font-family: 'DM Sans', sans-serif; color: var(--ink); line-height: 1.65; outline: none; resize: none; min-height: 100px; }
-
-  /* ACTION BUTTONS */
+  .transcript-label { font-size: 12px; color: var(--ink3); margin-bottom: 8px; letter-spacing: 0.06em; }
+  textarea.transcript-edit { width: 100%; border: none; background: transparent; font-size: 15px; font-family: 'Noto Sans TC', sans-serif; color: var(--ink); line-height: 1.8; outline: none; resize: none; min-height: 100px; }
   .action-row { display: flex; gap: 10px; margin-bottom: 14px; }
-  .btn { border-radius: 12px; border: 0.5px solid var(--border2); background: var(--card); color: var(--ink); font-size: 15px; font-family: 'DM Sans', sans-serif; font-weight: 500; padding: 14px 20px; cursor: pointer; flex: 1; transition: background 0.15s, transform 0.1s; -webkit-appearance: none; }
+  .btn { border-radius: 14px; border: 0.5px solid var(--border2); background: var(--card); color: var(--ink); font-size: 16px; font-family: 'Noto Sans TC', sans-serif; font-weight: 500; padding: 15px 20px; cursor: pointer; flex: 1; transition: background 0.15s, transform 0.1s; -webkit-appearance: none; }
   .btn:active { transform: scale(0.97); background: #f0ede8; }
-  .btn-primary { background: var(--accent); color: #fff; border-color: var(--accent); box-shadow: 0 3px 12px rgba(43,91,168,0.25); }
+  .btn-primary { background: var(--accent); color: #fff; border-color: var(--accent); box-shadow: 0 3px 14px rgba(43,91,168,0.28); }
   .btn-primary:active { background: #1e4a8c; }
   .btn-full { width: 100%; }
-  .btn-sm { font-size: 13px; padding: 10px 16px; flex: none; }
-
-  /* NOTES LIST */
-  .section-header { display: flex; justify-content: space-between; align-items: center; padding: 20px 0 12px; }
-  .section-header h2 { font-family: 'DM Serif Display', serif; font-size: 22px; font-weight: 400; }
+  .section-header { display: flex; justify-content: space-between; align-items: center; padding: 22px 0 12px; }
+  .section-header h2 { font-family: 'Noto Serif TC', serif; font-size: 22px; font-weight: 500; }
   .note-card { background: var(--card); border: 0.5px solid var(--border); border-radius: 16px; padding: 16px 18px; margin-bottom: 12px; box-shadow: var(--shadow); }
   .note-top { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 10px; }
   .note-meta-group { display: flex; flex-direction: column; gap: 3px; }
   .note-doc { font-size: 15px; font-weight: 500; color: var(--ink); }
   .note-time { font-size: 12px; color: var(--ink3); }
-  .badge { font-size: 11px; font-weight: 500; padding: 3px 10px; border-radius: 20px; }
+  .badge { font-size: 12px; font-weight: 500; padding: 3px 10px; border-radius: 20px; }
   .badge-recorded { background: var(--accent-light); color: var(--accent); }
   .badge-manual { background: var(--amber-light); color: var(--amber); }
-  .note-body { font-size: 14px; color: var(--ink2); line-height: 1.65; }
+  .note-body { font-size: 14px; color: var(--ink2); line-height: 1.8; }
   .note-actions { display: flex; gap: 8px; margin-top: 12px; }
-  .btn-ghost { background: none; border: 0.5px solid var(--border2); border-radius: 10px; color: var(--ink2); font-size: 13px; font-family: 'DM Sans', sans-serif; padding: 7px 14px; cursor: pointer; }
+  .btn-ghost { background: none; border: 0.5px solid var(--border2); border-radius: 10px; color: var(--ink2); font-size: 13px; font-family: 'Noto Sans TC', sans-serif; padding: 7px 14px; cursor: pointer; }
   .btn-ghost.danger { color: var(--danger); border-color: rgba(184,50,50,0.25); }
   .empty-state { text-align: center; padding: 60px 20px; color: var(--ink3); }
-  .empty-state .icon { font-size: 40px; margin-bottom: 12px; }
-  .empty-state p { font-size: 15px; line-height: 1.6; }
-
-  /* SUMMARY SCREEN */
+  .empty-state .icon { font-size: 44px; margin-bottom: 14px; }
+  .empty-state p { font-size: 15px; line-height: 1.85; }
   .summary-card { background: var(--card); border: 0.5px solid var(--border); border-radius: 16px; padding: 18px; margin-bottom: 14px; box-shadow: var(--shadow); }
-  .summary-card h3 { font-size: 13px; text-transform: uppercase; letter-spacing: 0.06em; color: var(--ink3); margin-bottom: 12px; }
-  .summary-text { font-size: 15px; color: var(--ink); line-height: 1.7; }
-  .summary-placeholder { font-size: 14px; color: var(--ink3); font-style: italic; line-height: 1.65; }
-  .question-item { display: flex; align-items: flex-start; gap: 10px; padding: 10px 0; border-bottom: 0.5px solid var(--border); }
+  .summary-card h3 { font-size: 12px; letter-spacing: 0.08em; color: var(--ink3); margin-bottom: 12px; }
+  .summary-text { font-size: 15px; color: var(--ink); line-height: 1.9; }
+  .summary-placeholder { font-size: 14px; color: var(--ink3); line-height: 1.8; }
+  .question-item { display: flex; align-items: flex-start; gap: 10px; padding: 11px 0; border-bottom: 0.5px solid var(--border); }
   .question-item:last-child { border-bottom: none; }
-  .q-dot { width: 8px; height: 8px; background: var(--accent); border-radius: 50%; margin-top: 6px; flex-shrink: 0; }
-  .q-text { font-size: 14px; color: var(--ink); line-height: 1.6; flex: 1; }
-  .med-item { display: flex; align-items: center; gap: 10px; padding: 10px 0; border-bottom: 0.5px solid var(--border); }
+  .q-dot { width: 8px; height: 8px; background: var(--accent); border-radius: 50%; margin-top: 7px; flex-shrink: 0; }
+  .q-text { font-size: 14px; color: var(--ink); line-height: 1.75; flex: 1; }
+  .med-item { display: flex; align-items: flex-start; gap: 10px; padding: 10px 0; border-bottom: 0.5px solid var(--border); }
   .med-item:last-child { border-bottom: none; }
-  .med-dot { width: 8px; height: 8px; background: var(--success); border-radius: 50%; flex-shrink: 0; }
-  .med-text { font-size: 14px; color: var(--ink); }
+  .med-dot { width: 8px; height: 8px; background: var(--success); border-radius: 50%; margin-top: 6px; flex-shrink: 0; }
+  .med-text { font-size: 14px; color: var(--ink); line-height: 1.65; }
   .loading-dots::after { content: ''; animation: dots 1.2s infinite; }
-  @keyframes dots { 0%{content:'.'} 33%{content:'..'} 66%{content:'...'} 100%{content:'.'} }
-
-  /* TOAST */
-  .toast { position: fixed; bottom: 90px; left: 50%; transform: translateX(-50%) translateY(20px); background: var(--ink); color: #fff; font-size: 14px; padding: 10px 20px; border-radius: 30px; opacity: 0; transition: all 0.3s; pointer-events: none; white-space: nowrap; z-index: 999; }
+  @keyframes dots { 0%{content:'．'} 33%{content:'．．'} 66%{content:'．．．'} 100%{content:'．'} }
+  .toast { position: fixed; bottom: 96px; left: 50%; transform: translateX(-50%) translateY(20px); background: var(--ink); color: #fff; font-size: 14px; font-family: 'Noto Sans TC', sans-serif; padding: 10px 22px; border-radius: 30px; opacity: 0; transition: all 0.3s; pointer-events: none; white-space: nowrap; z-index: 999; }
   .toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
-
-  /* DIALOG */
-  .dialog-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.4); z-index: 200; align-items: flex-end; }
+  .dialog-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.42); z-index: 200; align-items: flex-end; }
   .dialog-overlay.open { display: flex; }
-  .dialog { background: var(--cream); border-radius: 24px 24px 0 0; padding: 24px 20px 40px; width: 100%; max-width: 480px; margin: 0 auto; }
-  .dialog h3 { font-family: 'DM Serif Display', serif; font-size: 22px; font-weight: 400; margin-bottom: 8px; }
-  .dialog p { font-size: 14px; color: var(--ink2); line-height: 1.6; margin-bottom: 18px; }
+  .dialog { background: var(--cream); border-radius: 24px 24px 0 0; padding: 28px 20px 44px; width: 100%; max-width: 480px; margin: 0 auto; }
+  .dialog h3 { font-family: 'Noto Serif TC', serif; font-size: 20px; font-weight: 500; margin-bottom: 8px; }
+  .dialog p { font-size: 14px; color: var(--ink2); line-height: 1.7; margin-bottom: 20px; }
   .dialog-actions { display: flex; gap: 10px; }
 </style>
 </head>
 <body>
 
-<!-- RECORD SCREEN -->
+<!-- 錄音頁面 -->
 <div class="screen active" id="screen-record">
   <div class="screen-body">
     <div class="page-header">
       <div class="date-line" id="today-date"></div>
-      <h1>ICU Care Companion</h1>
+      <h1>加護病房照護助手</h1>
     </div>
 
     <div class="info-card">
       <div class="info-row">
-        <span class="info-label">醫師</span>
-        <input class="info-input" id="doctor-name" type="text" placeholder="在此輸入姓名" autocomplete="off" />
+        <span class="info-label">主治醫師</span>
+        <input class="info-input" id="doctor-name" type="text" placeholder="點此輸入醫師姓名" autocomplete="off" />
       </div>
       <div class="info-row">
-        <span class="info-label">病房</span>
-        <input class="info-input" id="ward-name" type="text" placeholder="例如：ICU 13" autocomplete="off" />
+        <span class="info-label">病房／床號</span>
+        <input class="info-input" id="ward-name" type="text" placeholder="例：加護病房 4 床" autocomplete="off" />
       </div>
       <div class="info-row">
-        <span class="info-label">時間</span>
+        <span class="info-label">目前時間</span>
         <span class="info-value" id="live-time"></span>
       </div>
+    </div>
+
+    <div class="hint-card">
+      <p>💡 先填好醫師姓名，再按下錄音鈕，把手機靠近說話者，系統會自動辨識普通話並轉為文字。</p>
     </div>
 
     <div class="record-btn-wrap">
@@ -162,127 +133,128 @@
       <button class="record-btn" id="record-btn" onclick="toggleRecording()">
         <svg id="mic-icon" viewBox="0 0 24 24"><path d="M12 2a3 3 0 0 1 3 3v7a3 3 0 0 1-6 0V5a3 3 0 0 1 3-3z"/><path d="M19 10v2a7 7 0 0 1-14 0v-2"/><line x1="12" y1="19" x2="12" y2="22"/><line x1="8" y1="22" x2="16" y2="22"/></svg>
         <svg id="stop-icon" viewBox="0 0 24 24" style="display:none;"><rect x="6" y="6" width="12" height="12" rx="2"/></svg>
-        <span class="btn-label" id="btn-label">按鈕錄音</span>
+        <span class="btn-label" id="btn-label">點我開始錄音</span>
       </button>
-      <div class="record-status" id="record-status">錄音時請把手機靠近醫生或護士</div>
+      <div class="record-status" id="record-status">請先填好醫師姓名，再按錄音</div>
     </div>
 
     <div class="transcript-card" id="transcript-card" style="display:none;">
-      <div class="transcript-label">Transcript</div>
-      <textarea class="transcript-edit" id="transcript-area" placeholder="Transcript will appear here. You can also type or paste notes." rows="5"></textarea>
+      <div class="transcript-label">自動辨識文字（可直接修改）</div>
+      <textarea class="transcript-edit" id="transcript-area" placeholder="辨識文字將顯示於此，您也可以直接在這裡打字補充。" rows="5"></textarea>
     </div>
+
     <div class="transcript-card" id="manual-card">
-      <div class="transcript-label">或是手動輸入筆記</div>
-      <textarea class="transcript-edit" id="manual-area" placeholder="寫下醫師或護士說的..." rows="4"></textarea>
+      <div class="transcript-label">手動輸入備忘</div>
+      <textarea class="transcript-edit" id="manual-area" placeholder="若無法錄音，可在此手動記錄醫師或護理師說的內容⋯⋯" rows="4"></textarea>
     </div>
 
     <div class="action-row">
-      <button class="btn btn-primary btn-full" onclick="saveCurrentNote()" id="save-btn">儲存筆記</button>
+      <button class="btn btn-primary btn-full" onclick="saveCurrentNote()">儲存這則記錄</button>
     </div>
   </div>
-  <nav class="bottom-nav" id="nav-record">
+
+  <nav class="bottom-nav">
     <button class="nav-btn active" onclick="switchScreen('record')">
       <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="3" fill="currentColor" stroke="none"/></svg>
-      Record
+      錄音
     </button>
     <button class="nav-btn" onclick="switchScreen('notes')">
-      <svg viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><polyline points="10 9 9 9 8 9"/></svg>
-      Notes
+      <svg viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>
+      記錄
     </button>
     <button class="nav-btn" onclick="switchScreen('summary')">
       <svg viewBox="0 0 24 24"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg>
-      Summary
+      每日摘要
     </button>
   </nav>
 </div>
 
-<!-- NOTES SCREEN -->
+<!-- 記錄頁面 -->
 <div class="screen" id="screen-notes">
   <div class="screen-body">
     <div class="section-header">
-      <h2>All notes</h2>
-      <span id="note-count-badge" style="font-size:13px; color:var(--ink3);">0 notes</span>
+      <h2>所有記錄</h2>
+      <span id="note-count-badge" style="font-size:13px; color:var(--ink3);">共 0 則</span>
     </div>
     <div id="notes-list"></div>
   </div>
+
   <nav class="bottom-nav">
     <button class="nav-btn" onclick="switchScreen('record')">
       <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="3" fill="currentColor" stroke="none"/></svg>
-      Record
+      錄音
     </button>
     <button class="nav-btn active" onclick="switchScreen('notes')">
-      <svg viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><polyline points="10 9 9 9 8 9"/></svg>
-      Notes
+      <svg viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>
+      記錄
     </button>
     <button class="nav-btn" onclick="switchScreen('summary')">
       <svg viewBox="0 0 24 24"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg>
-      Summary
+      每日摘要
     </button>
   </nav>
 </div>
 
-<!-- SUMMARY SCREEN -->
+<!-- 每日摘要頁面 -->
 <div class="screen" id="screen-summary">
   <div class="screen-body">
     <div class="page-header">
       <div class="date-line" id="summary-date"></div>
-      <h1>Daily summary</h1>
+      <h1>每日摘要</h1>
     </div>
 
     <div class="summary-card">
-      <h3>Status overview</h3>
-      <div class="summary-text" id="summary-overview">
-        <span class="summary-placeholder">Tap "Generate summary" below after adding notes to get a plain-language overview of today's care.</span>
+      <h3>目前病況總覽</h3>
+      <div id="summary-overview">
+        <span class="summary-placeholder">新增記錄後，點下方「產生今日摘要」，即可看到病況的白話說明。</span>
       </div>
     </div>
 
     <div class="summary-card">
-      <h3>Medications mentioned</h3>
-      <div id="meds-list"><span class="summary-placeholder">Will appear after generating summary.</span></div>
+      <h3>提及的藥物與治療</h3>
+      <div id="meds-list"><span class="summary-placeholder">產生摘要後顯示。</span></div>
     </div>
 
     <div class="summary-card">
-      <h3>Questions to ask next visit</h3>
-      <div id="questions-list"><span class="summary-placeholder">Will appear after generating summary.</span></div>
+      <h3>下次查房要問的問題</h3>
+      <div id="questions-list"><span class="summary-placeholder">產生摘要後顯示。</span></div>
     </div>
 
-    <button class="btn btn-primary btn-full" id="generate-btn" onclick="generateSummary()" style="margin-bottom:14px;">Generate today's summary</button>
-    <button class="btn btn-full" onclick="exportSummary()" style="margin-bottom:14px;">Share / export summary</button>
+    <button class="btn btn-primary btn-full" id="generate-btn" onclick="generateSummary()" style="margin-bottom:12px;">產生今日摘要</button>
+    <button class="btn btn-full" onclick="exportSummary()" style="margin-bottom:14px;">分享／匯出摘要</button>
   </div>
+
   <nav class="bottom-nav">
     <button class="nav-btn" onclick="switchScreen('record')">
       <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="3" fill="currentColor" stroke="none"/></svg>
-      Record
+      錄音
     </button>
     <button class="nav-btn" onclick="switchScreen('notes')">
-      <svg viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><polyline points="10 9 9 9 8 9"/></svg>
-      Notes
+      <svg viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>
+      記錄
     </button>
     <button class="nav-btn active" onclick="switchScreen('summary')">
       <svg viewBox="0 0 24 24"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg>
-      Summary
+      每日摘要
     </button>
   </nav>
 </div>
 
-<!-- TOAST -->
 <div class="toast" id="toast"></div>
 
-<!-- DELETE CONFIRM DIALOG -->
 <div class="dialog-overlay" id="delete-dialog">
   <div class="dialog">
-    <h3>Delete this note?</h3>
-    <p>This cannot be undone.</p>
+    <h3>確認刪除這則記錄？</h3>
+    <p>刪除後無法復原，請確認再操作。</p>
     <div class="dialog-actions">
-      <button class="btn btn-full" onclick="closeDialog()">Cancel</button>
-      <button class="btn btn-full" id="confirm-delete-btn" style="color:var(--danger); border-color:rgba(184,50,50,0.3);">Delete</button>
+      <button class="btn btn-full" onclick="closeDialog()">取消</button>
+      <button class="btn btn-full" id="confirm-delete-btn" style="color:var(--danger); border-color:rgba(184,50,50,0.3);">確認刪除</button>
     </div>
   </div>
 </div>
 
 <script>
-// STATE
-let notes = JSON.parse(localStorage.getItem('icu_notes') || '[]');
+let notes = JSON.parse(localStorage.getItem('icu_notes_tw') || '[]');
 let recognition = null;
 let isRecording = false;
 let timerInterval = null;
@@ -290,64 +262,53 @@ let recordSeconds = 0;
 let pendingDeleteId = null;
 let accumulatedTranscript = '';
 
-// SAVE
-function saveNotes() { localStorage.setItem('icu_notes', JSON.stringify(notes)); }
+function saveNotes() { localStorage.setItem('icu_notes_tw', JSON.stringify(notes)); }
 
-// SCREEN
 function switchScreen(name) {
   document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
   document.getElementById('screen-' + name).classList.add('active');
   if (name === 'notes') renderNotes();
 }
 
-// CLOCK
 function updateClock() {
   const now = new Date();
-  const timeEl = document.getElementById('live-time');
-  if (timeEl) timeEl.textContent = now.toLocaleTimeString('zh-TW', { hour: '2-digit', minute: '2-digit' });
+  const el = document.getElementById('live-time');
+  if (el) el.textContent = now.toLocaleTimeString('zh-TW', { hour: '2-digit', minute: '2-digit', hour12: false });
 }
-function setDateLabels() {
-  const opts = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
-  const d = new Date().toLocaleDateString('zh-TW', opts);
-  document.getElementById('today-date').textContent = d;
-  document.getElementById('summary-date').textContent = d;
-}
-setDateLabels();
-updateClock();
-setInterval(updateClock, 1000);
 
-// TOAST
+function setDateLabels() {
+  const opts = { year: 'numeric', month: 'long', day: 'numeric', weekday: 'long' };
+  const d = new Date().toLocaleDateString('zh-TW', opts);
+  ['today-date','summary-date'].forEach(id => { const el = document.getElementById(id); if(el) el.textContent = d; });
+}
+
+setDateLabels(); updateClock(); setInterval(updateClock, 1000);
+
 function showToast(msg) {
   const t = document.getElementById('toast');
-  t.textContent = msg;
-  t.classList.add('show');
-  setTimeout(() => t.classList.remove('show'), 2500);
+  t.textContent = msg; t.classList.add('show');
+  setTimeout(() => t.classList.remove('show'), 2600);
 }
 
-// RECORDING
-function toggleRecording() {
-  if (isRecording) stopRecording();
-  else startRecording();
-}
+function toggleRecording() { isRecording ? stopRecording() : startRecording(); }
 
 function startRecording() {
-  const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
-  if (!SpeechRecognition) {
-    document.getElementById('record-status').textContent = 'Speech recognition not supported. Use the text area below.';
+  const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
+  if (!SR) {
+    document.getElementById('record-status').textContent = '此裝置不支援語音辨識，請使用下方手動輸入。';
     document.getElementById('transcript-card').style.display = 'block';
     return;
   }
   accumulatedTranscript = '';
-  recognition = new SpeechRecognition();
+  recognition = new SR();
   recognition.continuous = true;
   recognition.interimResults = true;
   recognition.lang = 'zh-TW';
 
   recognition.onresult = (e) => {
-    let interim = '';
-    let final = '';
+    let interim = '', final = '';
     for (let i = e.resultIndex; i < e.results.length; i++) {
-      if (e.results[i].isFinal) final += e.results[i][0].transcript + ' ';
+      if (e.results[i].isFinal) final += e.results[i][0].transcript;
       else interim += e.results[i][0].transcript;
     }
     if (final) accumulatedTranscript += final;
@@ -357,84 +318,74 @@ function startRecording() {
 
   recognition.onerror = (e) => {
     if (e.error !== 'no-speech') {
-      document.getElementById('record-status').textContent = 'Mic error. Please type notes below.';
+      document.getElementById('record-status').textContent = '麥克風發生錯誤，請改用手動輸入。';
       stopRecording();
     }
   };
 
-  recognition.onend = () => {
-    if (isRecording) recognition.start();
-  };
-
+  recognition.onend = () => { if (isRecording) recognition.start(); };
   recognition.start();
-  isRecording = true;
-  recordSeconds = 0;
-
+  isRecording = true; recordSeconds = 0;
   document.getElementById('record-btn').classList.add('recording');
   document.getElementById('mic-icon').style.display = 'none';
   document.getElementById('stop-icon').style.display = 'block';
-  document.getElementById('btn-label').textContent = 'Tap to stop';
-  document.getElementById('record-status').textContent = 'Recording… speak clearly near the phone';
+  document.getElementById('btn-label').textContent = '點我停止';
+  document.getElementById('record-status').textContent = '錄音中⋯⋯請將手機靠近說話者';
   document.getElementById('transcript-card').style.display = 'block';
 
   timerInterval = setInterval(() => {
     recordSeconds++;
-    const m = String(Math.floor(recordSeconds / 60)).padStart(2, '0');
-    const s = String(recordSeconds % 60).padStart(2, '0');
-    document.getElementById('record-timer').textContent = m + ':' + s;
+    const m = String(Math.floor(recordSeconds/60)).padStart(2,'0');
+    const s = String(recordSeconds%60).padStart(2,'0');
+    document.getElementById('record-timer').textContent = m + '：' + s;
   }, 1000);
 }
 
 function stopRecording() {
   if (recognition) { recognition.onend = null; recognition.stop(); }
-  isRecording = false;
-  clearInterval(timerInterval);
+  isRecording = false; clearInterval(timerInterval);
   document.getElementById('record-btn').classList.remove('recording');
   document.getElementById('mic-icon').style.display = 'block';
   document.getElementById('stop-icon').style.display = 'none';
-  document.getElementById('btn-label').textContent = 'Tap to record';
-  document.getElementById('record-status').textContent = 'Recording stopped. Review and save below.';
+  document.getElementById('btn-label').textContent = '點我開始錄音';
+  document.getElementById('record-status').textContent = '錄音結束，請確認文字後儲存。';
 }
 
-// SAVE NOTE
 function saveCurrentNote() {
   const transcript = document.getElementById('transcript-area').value.trim();
   const manual = document.getElementById('manual-area').value.trim();
   const text = transcript || manual;
-  if (!text) { showToast('Please record or type a note first.'); return; }
+  if (!text) { showToast('請先錄音或輸入內容再儲存。'); return; }
 
   const note = {
     id: Date.now(),
-    doctor: document.getElementById('doctor-name').value.trim() || 'Unknown',
+    doctor: document.getElementById('doctor-name').value.trim() || '未填寫',
     ward: document.getElementById('ward-name').value.trim(),
-    date: new Date().toLocaleDateString('zh-TW'),
-    time: new Date().toLocaleTimeString('zh-TW', { hour: '2-digit', minute: '2-digit' }),
-    text,
-    type: transcript ? 'recorded' : 'manual'
+    date: new Date().toLocaleDateString('zh-TW', { year:'numeric', month:'long', day:'numeric' }),
+    time: new Date().toLocaleTimeString('zh-TW', { hour:'2-digit', minute:'2-digit', hour12:false }),
+    text, type: transcript ? 'recorded' : 'manual'
   };
 
-  notes.unshift(note);
-  saveNotes();
-  document.getElementById('note-count-badge') && (document.getElementById('note-count-badge').textContent = notes.length + ' note' + (notes.length !== 1 ? 's' : ''));
-
+  notes.unshift(note); saveNotes(); updateBadge();
   document.getElementById('transcript-area').value = '';
   document.getElementById('manual-area').value = '';
   document.getElementById('record-timer').textContent = '';
-  document.getElementById('record-status').textContent = 'Hold near the doctor or nurse while they speak';
+  document.getElementById('record-status').textContent = '請先填好醫師姓名，再按錄音';
   document.getElementById('transcript-card').style.display = 'none';
   accumulatedTranscript = '';
-
-  showToast('Note saved!');
+  showToast('記錄已儲存！');
 }
 
-// RENDER NOTES
+function updateBadge() {
+  const b = document.getElementById('note-count-badge');
+  if (b) b.textContent = '共 ' + notes.length + ' 則';
+}
+
 function renderNotes() {
   const list = document.getElementById('notes-list');
-  const badge = document.getElementById('note-count-badge');
-  if (badge) badge.textContent = notes.length + ' note' + (notes.length !== 1 ? 's' : '');
-
+  updateBadge();
   if (!notes.length) {
-    list.innerHTML = '<div class="empty-state"><div class="icon">📋</div><p>No notes yet.<br>Go to Record to capture your first conversation.</p></div>';
+    list.innerHTML = '<div class="empty-state"><div class="icon">📋</div><p>尚無記錄。<br>請到「錄音」頁面新增第一筆記錄。</p></div>';
     return;
   }
   list.innerHTML = notes.map(n => `
@@ -442,44 +393,36 @@ function renderNotes() {
       <div class="note-top">
         <div class="note-meta-group">
           <div class="note-doc">${n.doctor}</div>
-          <div class="note-time">${n.date} · ${n.time}${n.ward ? ' · ' + n.ward : ''}</div>
+          <div class="note-time">${n.date}　${n.time}${n.ward ? '　' + n.ward : ''}</div>
         </div>
-        <span class="badge badge-${n.type}">${n.type === 'recorded' ? '🎙 Recorded' : '✏️ Manual'}</span>
+        <span class="badge badge-${n.type}">${n.type === 'recorded' ? '🎙 語音記錄' : '✏️ 手動輸入'}</span>
       </div>
-      <div class="note-body">${n.text.replace(/\n/g,'<br>').substring(0, 300)}${n.text.length > 300 ? '…' : ''}</div>
+      <div class="note-body">${n.text.replace(/\n/g,'<br>').substring(0,300)}${n.text.length > 300 ? '⋯⋯' : ''}</div>
       <div class="note-actions">
-        <button class="btn-ghost danger" onclick="confirmDelete(${n.id})">Delete</button>
+        <button class="btn-ghost danger" onclick="confirmDelete(${n.id})">刪除</button>
       </div>
     </div>
   `).join('');
 }
 
-// DELETE
 function confirmDelete(id) {
   pendingDeleteId = id;
   document.getElementById('delete-dialog').classList.add('open');
   document.getElementById('confirm-delete-btn').onclick = () => {
     notes = notes.filter(n => n.id !== pendingDeleteId);
-    saveNotes();
-    closeDialog();
-    renderNotes();
-    showToast('Note deleted.');
+    saveNotes(); closeDialog(); renderNotes(); showToast('已刪除。');
   };
 }
 function closeDialog() { document.getElementById('delete-dialog').classList.remove('open'); }
 
-// SUMMARY
 async function generateSummary() {
-  if (!notes.length) { showToast('Add some notes first.'); return; }
+  if (!notes.length) { showToast('請先新增記錄再產生摘要。'); return; }
   const btn = document.getElementById('generate-btn');
-  btn.disabled = true;
-  btn.textContent = 'Generating';
-  btn.classList.add('loading-dots');
-
-  document.getElementById('summary-overview').innerHTML = '<span class="summary-placeholder">Analyzing notes<span class="loading-dots"></span></span>';
+  btn.disabled = true; btn.textContent = '分析中'; btn.classList.add('loading-dots');
+  document.getElementById('summary-overview').innerHTML = '<span class="summary-placeholder">正在分析記錄<span class="loading-dots"></span></span>';
 
   const notesText = notes.map(n =>
-    `[${n.date} ${n.time}] Doctor: ${n.doctor}${n.ward ? ', ' + n.ward : ''}\n${n.text}`
+    `【${n.date} ${n.time}】醫師：${n.doctor}${n.ward ? '　' + n.ward : ''}\n${n.text}`
   ).join('\n\n---\n\n');
 
   try {
@@ -488,62 +431,59 @@ async function generateSummary() {
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
         model: 'claude-sonnet-4-20250514',
-        max_tokens: 1000,
-        system: `You are a compassionate assistant helping a family understand their loved one's ICU care. Reply ONLY with valid JSON, no markdown, no backticks.
+        max_tokens: 1200,
+        system: `你是一位溫暖、專業的醫療紀錄助理，正在幫助家屬了解病人在加護病房的狀況。請根據以下查房記錄，用繁體中文（台灣慣用語）、淺白易懂的方式整理摘要。
 
-Format:
+請只回傳以下 JSON 格式，不要加任何說明文字或 markdown 標記：
 {
-  "overview": "3-4 sentences in plain, warm language summarizing the patient's current condition, key updates, and overall direction.",
-  "medications": ["medication name and brief purpose"],
-  "questions": ["important follow-up question for the medical team"]
+  "overview": "用 3～4 句話，溫和清楚地說明病人目前的狀況、今天的重要進展與整體趨勢。",
+  "medications": ["藥物或治療名稱，加上一句簡短說明"],
+  "questions": ["家屬下次查房時值得詢問醫師的具體問題"]
 }
 
-Keep language simple and reassuring. Focus on what the family needs to understand and do next.`,
-        messages: [{ role: 'user', content: `ICU notes:\n\n${notesText}` }]
+medications：列出記錄中明確提及的藥物或治療，若無則給空陣列。
+questions：根據記錄中尚未釐清或重要的地方，建議 2～4 個問題。
+語氣請保持平穩關懷，避免艱澀醫學術語，全程使用繁體中文。`,
+        messages: [{ role: 'user', content: `加護病房查房記錄如下：\n\n${notesText}` }]
       })
     });
     const data = await res.json();
     const raw = data.content.map(b => b.text || '').join('');
-    const parsed = JSON.parse(raw.replace(/```json|```/g, '').trim());
+    const parsed = JSON.parse(raw.replace(/```json|```/g,'').trim());
 
-    document.getElementById('summary-overview').innerHTML = `<span class="summary-text">${parsed.overview || 'Summary unavailable.'}</span>`;
+    document.getElementById('summary-overview').innerHTML = `<span class="summary-text">${parsed.overview || '無法產生摘要。'}</span>`;
 
     const medsEl = document.getElementById('meds-list');
     medsEl.innerHTML = parsed.medications && parsed.medications.length
       ? parsed.medications.map(m => `<div class="med-item"><div class="med-dot"></div><div class="med-text">${m}</div></div>`).join('')
-      : '<span class="summary-placeholder">No medications mentioned in notes.</span>';
+      : '<span class="summary-placeholder">記錄中未明確提及藥物。</span>';
 
     const qEl = document.getElementById('questions-list');
     qEl.innerHTML = parsed.questions && parsed.questions.length
       ? parsed.questions.map(q => `<div class="question-item"><div class="q-dot"></div><div class="q-text">${q}</div></div>`).join('')
-      : '<span class="summary-placeholder">No questions generated.</span>';
+      : '<span class="summary-placeholder">暫無建議問題。</span>';
 
-  } catch (e) {
-    document.getElementById('summary-overview').innerHTML = '<span class="summary-placeholder">Could not generate summary. Check your connection and try again.</span>';
+  } catch(e) {
+    document.getElementById('summary-overview').innerHTML = '<span class="summary-placeholder">產生摘要失敗，請確認網路連線後再試。</span>';
   }
 
-  btn.disabled = false;
-  btn.textContent = 'Generate today\'s summary';
-  btn.classList.remove('loading-dots');
+  btn.disabled = false; btn.textContent = '產生今日摘要'; btn.classList.remove('loading-dots');
 }
 
-// EXPORT
 function exportSummary() {
   const overview = document.getElementById('summary-overview').textContent;
   const meds = document.getElementById('meds-list').textContent;
   const questions = document.getElementById('questions-list').textContent;
-  const date = new Date().toLocaleDateString('zh-TW');
-  const text = `ICU Care Summary — ${date}\n\n--- Status ---\n${overview}\n\n--- Medications ---\n${meds}\n\n--- Questions for next visit ---\n${questions}`;
+  const date = new Date().toLocaleDateString('zh-TW', { year:'numeric', month:'long', day:'numeric' });
+  const text = `加護病房照護摘要　${date}\n\n【目前病況】\n${overview}\n\n【提及的藥物與治療】\n${meds}\n\n【下次要問的問題】\n${questions}`;
   if (navigator.share) {
-    navigator.share({ title: 'ICU Care Summary', text });
+    navigator.share({ title: '加護病房照護摘要', text });
   } else {
-    navigator.clipboard.writeText(text).then(() => showToast('Summary copied!'));
+    navigator.clipboard.writeText(text).then(() => showToast('已複製到剪貼簿！'));
   }
 }
 
-// INIT
-renderNotes();
-document.getElementById('note-count-badge').textContent = notes.length + ' note' + (notes.length !== 1 ? 's' : '');
+renderNotes(); updateBadge();
 </script>
 </body>
 </html>

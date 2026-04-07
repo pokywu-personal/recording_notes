@@ -14,10 +14,9 @@
     --cream: #FAF8F4; --ink: #1A1A18; --ink2: #4A4A44; --ink3: #8A8A82;
     --border: rgba(26,26,24,0.12); --border2: rgba(26,26,24,0.22);
     --accent: #2B5BA8; --accent-light: #EBF1FA;
-    --success: #2A7A4B; --danger: #B83232;
-    --amber: #A05C10; --amber-light: #FDF3E7;
-    --card: #FFFFFF;
-    --shadow: 0 2px 12px rgba(26,26,24,0.08);
+    --success: #2A7A4B; --success-light: #EAF5EF;
+    --danger: #B83232; --amber: #A05C10; --amber-light: #FDF3E7;
+    --card: #FFFFFF; --shadow: 0 2px 12px rgba(26,26,24,0.08);
   }
   html, body { height: 100%; background: var(--cream); color: var(--ink); font-family: 'Noto Sans TC', sans-serif; }
   .screen { display: none; flex-direction: column; height: 100vh; max-width: 480px; margin: 0 auto; }
@@ -40,13 +39,21 @@
   .info-input::placeholder { color: var(--ink3); font-weight: 400; }
   .hint-card { background: var(--accent-light); border: 0.5px solid rgba(43,91,168,0.2); border-radius: 14px; padding: 14px 16px; margin-bottom: 14px; }
   .hint-card p { font-size: 13px; color: var(--accent); line-height: 1.75; }
+  .sync-bar { display: flex; align-items: center; gap: 8px; padding: 10px 14px; border-radius: 12px; margin-bottom: 14px; font-size: 13px; }
+  .sync-bar.ok { background: var(--success-light); color: var(--success); }
+  .sync-bar.err { background: #FAEAEA; color: var(--danger); }
+  .sync-bar.loading { background: #F1EFE8; color: var(--ink3); }
+  .sync-bar.setup { background: var(--amber-light); color: var(--amber); }
+  .sync-dot { width: 7px; height: 7px; border-radius: 50%; background: currentColor; flex-shrink: 0; }
+  .sync-dot.pulse { animation: pulse 1.4s ease-in-out infinite; }
+  @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:0.3} }
   .record-btn-wrap { display: flex; flex-direction: column; align-items: center; margin: 20px 0 18px; gap: 16px; }
-  .record-btn { width: 168px; height: 168px; border-radius: 50%; border: none; background: var(--accent); cursor: pointer; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 10px; box-shadow: 0 6px 32px rgba(43,91,168,0.38); transition: transform 0.15s; position: relative; -webkit-appearance: none; }
+  .record-btn { width: 168px; height: 168px; border-radius: 50%; border: none; background: var(--accent); cursor: pointer; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 10px; box-shadow: 0 6px 32px rgba(43,91,168,0.38); transition: transform 0.15s; -webkit-appearance: none; }
   .record-btn:active { transform: scale(0.95); }
   .record-btn.recording { background: var(--danger); box-shadow: 0 6px 32px rgba(184,50,50,0.38); animation: breathe 1.8s ease-in-out infinite; }
   .record-btn svg { width: 52px; height: 52px; stroke: #fff; fill: none; stroke-width: 1.6; stroke-linecap: round; stroke-linejoin: round; }
   .record-btn .btn-label { font-size: 14px; font-weight: 500; color: rgba(255,255,255,0.92); font-family: 'Noto Sans TC', sans-serif; }
-  @keyframes breathe { 0%,100% { box-shadow: 0 6px 32px rgba(184,50,50,0.38); } 50% { box-shadow: 0 6px 52px rgba(184,50,50,0.65), 0 0 0 20px rgba(184,50,50,0.1); } }
+  @keyframes breathe { 0%,100%{box-shadow:0 6px 32px rgba(184,50,50,0.38);} 50%{box-shadow:0 6px 52px rgba(184,50,50,0.65),0 0 0 20px rgba(184,50,50,0.1);} }
   .record-status { font-size: 14px; color: var(--ink3); text-align: center; min-height: 22px; line-height: 1.6; padding: 0 12px; }
   .record-timer { font-size: 32px; font-family: 'Noto Serif TC', serif; color: var(--ink); text-align: center; min-height: 40px; letter-spacing: 0.05em; }
   .transcript-card { background: var(--card); border: 0.5px solid var(--border); border-radius: 16px; padding: 16px 18px; margin-bottom: 14px; box-shadow: var(--shadow); }
@@ -60,6 +67,7 @@
   .btn-full { width: 100%; }
   .section-header { display: flex; justify-content: space-between; align-items: center; padding: 22px 0 12px; }
   .section-header h2 { font-family: 'Noto Serif TC', serif; font-size: 22px; font-weight: 500; }
+  .refresh-btn { font-size: 13px; color: var(--accent); background: none; border: none; cursor: pointer; font-family: 'Noto Sans TC', sans-serif; padding: 4px 8px; }
   .note-card { background: var(--card); border: 0.5px solid var(--border); border-radius: 16px; padding: 16px 18px; margin-bottom: 12px; box-shadow: var(--shadow); }
   .note-top { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 10px; }
   .note-meta-group { display: flex; flex-direction: column; gap: 3px; }
@@ -87,19 +95,66 @@
   .med-item:last-child { border-bottom: none; }
   .med-dot { width: 8px; height: 8px; background: var(--success); border-radius: 50%; margin-top: 6px; flex-shrink: 0; }
   .med-text { font-size: 14px; color: var(--ink); line-height: 1.65; }
-  .loading-dots::after { content: ''; animation: dots 1.2s infinite; }
-  @keyframes dots { 0%{content:'．'} 33%{content:'．．'} 66%{content:'．．．'} 100%{content:'．'} }
+  .loading-dots::after { content: ''; animation: ldots 1.2s infinite; }
+  @keyframes ldots { 0%{content:'．'} 33%{content:'．．'} 66%{content:'．．．'} 100%{content:'．'} }
   .toast { position: fixed; bottom: 96px; left: 50%; transform: translateX(-50%) translateY(20px); background: var(--ink); color: #fff; font-size: 14px; font-family: 'Noto Sans TC', sans-serif; padding: 10px 22px; border-radius: 30px; opacity: 0; transition: all 0.3s; pointer-events: none; white-space: nowrap; z-index: 999; }
   .toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
   .dialog-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.42); z-index: 200; align-items: flex-end; }
   .dialog-overlay.open { display: flex; }
   .dialog { background: var(--cream); border-radius: 24px 24px 0 0; padding: 28px 20px 44px; width: 100%; max-width: 480px; margin: 0 auto; }
   .dialog h3 { font-family: 'Noto Serif TC', serif; font-size: 20px; font-weight: 500; margin-bottom: 8px; }
-  .dialog p { font-size: 14px; color: var(--ink2); line-height: 1.7; margin-bottom: 20px; }
+  .dialog p { font-size: 14px; color: var(--ink2); line-height: 1.7; margin-bottom: 16px; }
+  .dialog input { width: 100%; border: 0.5px solid var(--border2); border-radius: 12px; padding: 13px 14px; font-size: 15px; font-family: 'Noto Sans TC', sans-serif; background: var(--card); color: var(--ink); outline: none; margin-bottom: 16px; }
   .dialog-actions { display: flex; gap: 10px; }
+  .setup-screen { display: flex; flex-direction: column; align-items: center; justify-content: center; min-height: 100vh; padding: 32px 24px; max-width: 480px; margin: 0 auto; text-align: center; }
+  .setup-screen h2 { font-family: 'Noto Serif TC', serif; font-size: 24px; font-weight: 500; margin-bottom: 10px; }
+  .setup-screen p { font-size: 14px; color: var(--ink2); line-height: 1.8; margin-bottom: 24px; }
+  .step { background: var(--card); border: 0.5px solid var(--border); border-radius: 16px; padding: 16px 18px; margin-bottom: 12px; text-align: left; box-shadow: var(--shadow); }
+  .step-num { font-size: 11px; color: var(--ink3); margin-bottom: 4px; letter-spacing: 0.06em; }
+  .step-text { font-size: 14px; color: var(--ink); line-height: 1.75; }
+  .step-text a { color: var(--accent); text-decoration: none; }
+  .url-input { width: 100%; border: 0.5px solid var(--border2); border-radius: 12px; padding: 14px 16px; font-size: 14px; font-family: 'Noto Sans TC', sans-serif; background: var(--card); color: var(--ink); outline: none; margin-top: 8px; }
 </style>
 </head>
 <body>
+
+<!-- 設定畫面（首次使用） -->
+<div id="setup-screen" class="setup-screen" style="display:none;">
+  <div style="font-size:52px; margin-bottom:16px;">🏥</div>
+  <h2>設定共用連線</h2>
+  <p>請依照以下步驟，建立 Google Sheets 讓全家共用記錄。只需設定一次。</p>
+
+  <div class="step">
+    <div class="step-num">步驟 1</div>
+    <div class="step-text">用您的 Google 帳號，開啟一個新的 <a href="https://sheets.new" target="_blank">Google 試算表 →</a></div>
+  </div>
+
+  <div class="step">
+    <div class="step-num">步驟 2</div>
+    <div class="step-text">在試算表上方選單點「擴充功能」→「Apps Script」，開啟指令碼編輯器。</div>
+  </div>
+
+  <div class="step">
+    <div class="step-num">步驟 3</div>
+    <div class="step-text">把編輯器裡原有的程式碼<strong>全部刪掉</strong>，貼上我們另外提供的 <code>apps-script.js</code> 程式碼，然後點上方的💾「儲存」。</div>
+  </div>
+
+  <div class="step">
+    <div class="step-num">步驟 4</div>
+    <div class="step-text">點「部署」→「新增部署作業」→ 類型選「網頁應用程式」→ 存取權選「<strong>所有人</strong>」→ 點「部署」。Google 會要求您授權，請同意。</div>
+  </div>
+
+  <div class="step">
+    <div class="step-num">步驟 5</div>
+    <div class="step-text">部署完成後，複製「網頁應用程式網址」，貼到下方欄位。</div>
+    <input class="url-input" id="setup-url-input" type="url" placeholder="https://script.google.com/macros/s/..." />
+  </div>
+
+  <button class="btn btn-primary btn-full" onclick="saveScriptUrl()" style="margin-top:8px;">確認，開始使用</button>
+</div>
+
+<!-- 主介面 -->
+<div id="main-app" style="display:none;">
 
 <!-- 錄音頁面 -->
 <div class="screen active" id="screen-record">
@@ -107,6 +162,11 @@
     <div class="page-header">
       <div class="date-line" id="today-date"></div>
       <h1>加護病房照護助手</h1>
+    </div>
+
+    <div id="sync-bar" class="sync-bar loading">
+      <div class="sync-dot pulse"></div>
+      <span id="sync-text">連線中⋯⋯</span>
     </div>
 
     <div class="info-card">
@@ -140,16 +200,16 @@
 
     <div class="transcript-card" id="transcript-card" style="display:none;">
       <div class="transcript-label">自動辨識文字（可直接修改）</div>
-      <textarea class="transcript-edit" id="transcript-area" placeholder="辨識文字將顯示於此，您也可以直接在這裡打字補充。" rows="5"></textarea>
+      <textarea class="transcript-edit" id="transcript-area" placeholder="辨識文字將顯示於此，也可以直接在這裡打字補充。" rows="5"></textarea>
     </div>
 
-    <div class="transcript-card" id="manual-card">
+    <div class="transcript-card">
       <div class="transcript-label">手動輸入備忘</div>
       <textarea class="transcript-edit" id="manual-area" placeholder="若無法錄音，可在此手動記錄醫師或護理師說的內容⋯⋯" rows="4"></textarea>
     </div>
 
     <div class="action-row">
-      <button class="btn btn-primary btn-full" onclick="saveCurrentNote()">儲存這則記錄</button>
+      <button class="btn btn-primary btn-full" id="save-btn" onclick="saveCurrentNote()">儲存並同步記錄</button>
     </div>
   </div>
 
@@ -174,11 +234,11 @@
   <div class="screen-body">
     <div class="section-header">
       <h2>所有記錄</h2>
-      <span id="note-count-badge" style="font-size:13px; color:var(--ink3);">共 0 則</span>
+      <button class="refresh-btn" onclick="loadNotes()">↻ 重新整理</button>
     </div>
+    <div id="note-count-line" style="font-size:13px; color:var(--ink3); margin-bottom:14px;"></div>
     <div id="notes-list"></div>
   </div>
-
   <nav class="bottom-nav">
     <button class="nav-btn" onclick="switchScreen('record')">
       <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="3" fill="currentColor" stroke="none"/></svg>
@@ -202,28 +262,22 @@
       <div class="date-line" id="summary-date"></div>
       <h1>每日摘要</h1>
     </div>
-
     <div class="summary-card">
       <h3>目前病況總覽</h3>
-      <div id="summary-overview">
-        <span class="summary-placeholder">新增記錄後，點下方「產生今日摘要」，即可看到病況的白話說明。</span>
-      </div>
+      <div id="summary-overview"><span class="summary-placeholder">新增記錄後，點下方「產生今日摘要」，即可看到病況的白話說明。</span></div>
     </div>
-
     <div class="summary-card">
       <h3>提及的藥物與治療</h3>
       <div id="meds-list"><span class="summary-placeholder">產生摘要後顯示。</span></div>
     </div>
-
     <div class="summary-card">
       <h3>下次查房要問的問題</h3>
       <div id="questions-list"><span class="summary-placeholder">產生摘要後顯示。</span></div>
     </div>
-
     <button class="btn btn-primary btn-full" id="generate-btn" onclick="generateSummary()" style="margin-bottom:12px;">產生今日摘要</button>
     <button class="btn btn-full" onclick="exportSummary()" style="margin-bottom:14px;">分享／匯出摘要</button>
+    <button class="btn btn-full" onclick="resetSetup()" style="margin-bottom:14px; font-size:13px; color:var(--ink3);">重新設定 Google Sheets 連線</button>
   </div>
-
   <nav class="bottom-nav">
     <button class="nav-btn" onclick="switchScreen('record')">
       <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="3" fill="currentColor" stroke="none"/></svg>
@@ -240,12 +294,14 @@
   </nav>
 </div>
 
+</div><!-- end main-app -->
+
 <div class="toast" id="toast"></div>
 
 <div class="dialog-overlay" id="delete-dialog">
   <div class="dialog">
     <h3>確認刪除這則記錄？</h3>
-    <p>刪除後無法復原，請確認再操作。</p>
+    <p>刪除後所有人的記錄都會同步移除，無法復原。</p>
     <div class="dialog-actions">
       <button class="btn btn-full" onclick="closeDialog()">取消</button>
       <button class="btn btn-full" id="confirm-delete-btn" style="color:var(--danger); border-color:rgba(184,50,50,0.3);">確認刪除</button>
@@ -254,42 +310,111 @@
 </div>
 
 <script>
-let notes = JSON.parse(localStorage.getItem('icu_notes_tw') || '[]');
+let notes = [];
 let recognition = null;
 let isRecording = false;
 let timerInterval = null;
 let recordSeconds = 0;
 let pendingDeleteId = null;
 let accumulatedTranscript = '';
+let SCRIPT_URL = localStorage.getItem('icu_script_url') || '';
 
-function saveNotes() { localStorage.setItem('icu_notes_tw', JSON.stringify(notes)); }
-
-function switchScreen(name) {
-  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
-  document.getElementById('screen-' + name).classList.add('active');
-  if (name === 'notes') renderNotes();
+// ── INIT ──
+function init() {
+  if (!SCRIPT_URL) {
+    document.getElementById('setup-screen').style.display = 'flex';
+    document.getElementById('main-app').style.display = 'none';
+  } else {
+    document.getElementById('setup-screen').style.display = 'none';
+    document.getElementById('main-app').style.display = 'block';
+    setDateLabels(); updateClock(); setInterval(updateClock, 1000);
+    loadNotes();
+  }
 }
 
+function saveScriptUrl() {
+  const url = document.getElementById('setup-url-input').value.trim();
+  if (!url.startsWith('https://script.google.com')) {
+    alert('網址格式不正確，請重新複製 Apps Script 的部署網址。'); return;
+  }
+  localStorage.setItem('icu_script_url', url);
+  SCRIPT_URL = url;
+  init();
+}
+
+function resetSetup() {
+  if (!confirm('確定要重新設定連線網址嗎？')) return;
+  localStorage.removeItem('icu_script_url');
+  SCRIPT_URL = '';
+  init();
+}
+
+// ── CLOCK ──
 function updateClock() {
-  const now = new Date();
   const el = document.getElementById('live-time');
-  if (el) el.textContent = now.toLocaleTimeString('zh-TW', { hour: '2-digit', minute: '2-digit', hour12: false });
+  if (el) el.textContent = new Date().toLocaleTimeString('zh-TW', { hour:'2-digit', minute:'2-digit', hour12:false });
 }
-
 function setDateLabels() {
-  const opts = { year: 'numeric', month: 'long', day: 'numeric', weekday: 'long' };
+  const opts = { year:'numeric', month:'long', day:'numeric', weekday:'long' };
   const d = new Date().toLocaleDateString('zh-TW', opts);
   ['today-date','summary-date'].forEach(id => { const el = document.getElementById(id); if(el) el.textContent = d; });
 }
 
-setDateLabels(); updateClock(); setInterval(updateClock, 1000);
-
+// ── TOAST ──
 function showToast(msg) {
   const t = document.getElementById('toast');
   t.textContent = msg; t.classList.add('show');
-  setTimeout(() => t.classList.remove('show'), 2600);
+  setTimeout(() => t.classList.remove('show'), 2800);
 }
 
+// ── SYNC BAR ──
+function setSyncBar(state, msg) {
+  const bar = document.getElementById('sync-bar');
+  const dot = bar.querySelector('.sync-dot');
+  const text = document.getElementById('sync-text');
+  bar.className = 'sync-bar ' + state;
+  dot.className = 'sync-dot' + (state === 'loading' ? ' pulse' : '');
+  text.textContent = msg;
+}
+
+// ── SCREEN ──
+function switchScreen(name) {
+  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+  document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
+  document.getElementById('screen-' + name).classList.add('active');
+  event.currentTarget.classList.add('active');
+  if (name === 'notes') loadNotes();
+}
+
+// ── GOOGLE SHEETS API ──
+async function apiGet() {
+  const res = await fetch(SCRIPT_URL, { method: 'GET' });
+  return res.json();
+}
+async function apiPost(payload) {
+  await fetch(SCRIPT_URL, {
+    method: 'POST',
+    body: JSON.stringify(payload)
+  });
+}
+
+async function loadNotes() {
+  setSyncBar('loading', '同步中⋯⋯');
+  const list = document.getElementById('notes-list');
+  if (list) list.innerHTML = '<div class="empty-state"><p>載入中<span class="loading-dots"></span></p></div>';
+  try {
+    const data = await apiGet();
+    if (!data.ok) throw new Error(data.error);
+    notes = data.notes || [];
+    setSyncBar('ok', '已同步　所有人的記錄都是最新的');
+    renderNotes();
+  } catch(e) {
+    setSyncBar('err', '連線失敗，請確認網路後重試');
+    if (list) list.innerHTML = '<div class="empty-state"><p>載入失敗，請點右上角「重新整理」。</p></div>';
+  }
+}
+
+// ── RECORDING ──
 function toggleRecording() { isRecording ? stopRecording() : startRecording(); }
 
 function startRecording() {
@@ -304,7 +429,6 @@ function startRecording() {
   recognition.continuous = true;
   recognition.interimResults = true;
   recognition.lang = 'zh-TW';
-
   recognition.onresult = (e) => {
     let interim = '', final = '';
     for (let i = e.resultIndex; i < e.results.length; i++) {
@@ -315,14 +439,9 @@ function startRecording() {
     document.getElementById('transcript-area').value = accumulatedTranscript + interim;
     document.getElementById('transcript-card').style.display = 'block';
   };
-
   recognition.onerror = (e) => {
-    if (e.error !== 'no-speech') {
-      document.getElementById('record-status').textContent = '麥克風發生錯誤，請改用手動輸入。';
-      stopRecording();
-    }
+    if (e.error !== 'no-speech') { document.getElementById('record-status').textContent = '麥克風發生錯誤，請改用手動輸入。'; stopRecording(); }
   };
-
   recognition.onend = () => { if (isRecording) recognition.start(); };
   recognition.start();
   isRecording = true; recordSeconds = 0;
@@ -332,7 +451,6 @@ function startRecording() {
   document.getElementById('btn-label').textContent = '點我停止';
   document.getElementById('record-status').textContent = '錄音中⋯⋯請將手機靠近說話者';
   document.getElementById('transcript-card').style.display = 'block';
-
   timerInterval = setInterval(() => {
     recordSeconds++;
     const m = String(Math.floor(recordSeconds/60)).padStart(2,'0');
@@ -351,11 +469,16 @@ function stopRecording() {
   document.getElementById('record-status').textContent = '錄音結束，請確認文字後儲存。';
 }
 
-function saveCurrentNote() {
+// ── SAVE NOTE ──
+async function saveCurrentNote() {
   const transcript = document.getElementById('transcript-area').value.trim();
   const manual = document.getElementById('manual-area').value.trim();
   const text = transcript || manual;
   if (!text) { showToast('請先錄音或輸入內容再儲存。'); return; }
+
+  const btn = document.getElementById('save-btn');
+  btn.disabled = true; btn.textContent = '儲存中⋯⋯';
+  setSyncBar('loading', '上傳記錄中⋯⋯');
 
   const note = {
     id: Date.now(),
@@ -366,38 +489,44 @@ function saveCurrentNote() {
     text, type: transcript ? 'recorded' : 'manual'
   };
 
-  notes.unshift(note); saveNotes(); updateBadge();
+  try {
+    await apiPost({ action: 'save', ...note });
+    notes.unshift(note);
+    setSyncBar('ok', '已同步　記錄成功儲存到 Google Sheets');
+    showToast('記錄已儲存並同步！');
+  } catch(e) {
+    setSyncBar('err', '同步失敗，請確認網路連線');
+    showToast('儲存失敗，請重試。');
+  }
+
+  btn.disabled = false; btn.textContent = '儲存並同步記錄';
   document.getElementById('transcript-area').value = '';
   document.getElementById('manual-area').value = '';
   document.getElementById('record-timer').textContent = '';
   document.getElementById('record-status').textContent = '請先填好醫師姓名，再按錄音';
   document.getElementById('transcript-card').style.display = 'none';
   accumulatedTranscript = '';
-  showToast('記錄已儲存！');
 }
 
-function updateBadge() {
-  const b = document.getElementById('note-count-badge');
-  if (b) b.textContent = '共 ' + notes.length + ' 則';
-}
-
+// ── RENDER ──
 function renderNotes() {
   const list = document.getElementById('notes-list');
-  updateBadge();
+  const line = document.getElementById('note-count-line');
+  if (line) line.textContent = '共 ' + notes.length + ' 則記錄';
   if (!notes.length) {
     list.innerHTML = '<div class="empty-state"><div class="icon">📋</div><p>尚無記錄。<br>請到「錄音」頁面新增第一筆記錄。</p></div>';
     return;
   }
   list.innerHTML = notes.map(n => `
-    <div class="note-card" id="note-${n.id}">
+    <div class="note-card">
       <div class="note-top">
         <div class="note-meta-group">
           <div class="note-doc">${n.doctor}</div>
           <div class="note-time">${n.date}　${n.time}${n.ward ? '　' + n.ward : ''}</div>
         </div>
-        <span class="badge badge-${n.type}">${n.type === 'recorded' ? '🎙 語音記錄' : '✏️ 手動輸入'}</span>
+        <span class="badge badge-${n.type}">${n.type === 'recorded' ? '🎙 語音' : '✏️ 手動'}</span>
       </div>
-      <div class="note-body">${n.text.replace(/\n/g,'<br>').substring(0,300)}${n.text.length > 300 ? '⋯⋯' : ''}</div>
+      <div class="note-body">${n.text.replace(/\n/g,'<br>').substring(0,300)}${n.text.length>300?'⋯⋯':''}</div>
       <div class="note-actions">
         <button class="btn-ghost danger" onclick="confirmDelete(${n.id})">刪除</button>
       </div>
@@ -405,16 +534,28 @@ function renderNotes() {
   `).join('');
 }
 
+// ── DELETE ──
 function confirmDelete(id) {
   pendingDeleteId = id;
   document.getElementById('delete-dialog').classList.add('open');
-  document.getElementById('confirm-delete-btn').onclick = () => {
-    notes = notes.filter(n => n.id !== pendingDeleteId);
-    saveNotes(); closeDialog(); renderNotes(); showToast('已刪除。');
+  document.getElementById('confirm-delete-btn').onclick = async () => {
+    closeDialog();
+    setSyncBar('loading', '刪除中⋯⋯');
+    try {
+      await apiPost({ action: 'delete', id: pendingDeleteId });
+      notes = notes.filter(n => n.id !== pendingDeleteId);
+      renderNotes();
+      setSyncBar('ok', '已同步　記錄已刪除');
+      showToast('已刪除。');
+    } catch(e) {
+      setSyncBar('err', '刪除失敗，請重試');
+      showToast('刪除失敗，請重試。');
+    }
   };
 }
 function closeDialog() { document.getElementById('delete-dialog').classList.remove('open'); }
 
+// ── SUMMARY ──
 async function generateSummary() {
   if (!notes.length) { showToast('請先新增記錄再產生摘要。'); return; }
   const btn = document.getElementById('generate-btn');
@@ -450,40 +591,33 @@ questions：根據記錄中尚未釐清或重要的地方，建議 2～4 個問�
     const data = await res.json();
     const raw = data.content.map(b => b.text || '').join('');
     const parsed = JSON.parse(raw.replace(/```json|```/g,'').trim());
-
     document.getElementById('summary-overview').innerHTML = `<span class="summary-text">${parsed.overview || '無法產生摘要。'}</span>`;
-
     const medsEl = document.getElementById('meds-list');
     medsEl.innerHTML = parsed.medications && parsed.medications.length
       ? parsed.medications.map(m => `<div class="med-item"><div class="med-dot"></div><div class="med-text">${m}</div></div>`).join('')
       : '<span class="summary-placeholder">記錄中未明確提及藥物。</span>';
-
     const qEl = document.getElementById('questions-list');
     qEl.innerHTML = parsed.questions && parsed.questions.length
       ? parsed.questions.map(q => `<div class="question-item"><div class="q-dot"></div><div class="q-text">${q}</div></div>`).join('')
       : '<span class="summary-placeholder">暫無建議問題。</span>';
-
   } catch(e) {
     document.getElementById('summary-overview').innerHTML = '<span class="summary-placeholder">產生摘要失敗，請確認網路連線後再試。</span>';
   }
-
   btn.disabled = false; btn.textContent = '產生今日摘要'; btn.classList.remove('loading-dots');
 }
 
+// ── EXPORT ──
 function exportSummary() {
   const overview = document.getElementById('summary-overview').textContent;
   const meds = document.getElementById('meds-list').textContent;
   const questions = document.getElementById('questions-list').textContent;
   const date = new Date().toLocaleDateString('zh-TW', { year:'numeric', month:'long', day:'numeric' });
   const text = `加護病房照護摘要　${date}\n\n【目前病況】\n${overview}\n\n【提及的藥物與治療】\n${meds}\n\n【下次要問的問題】\n${questions}`;
-  if (navigator.share) {
-    navigator.share({ title: '加護病房照護摘要', text });
-  } else {
-    navigator.clipboard.writeText(text).then(() => showToast('已複製到剪貼簿！'));
-  }
+  if (navigator.share) navigator.share({ title:'加護病房照護摘要', text });
+  else navigator.clipboard.writeText(text).then(() => showToast('已複製到剪貼簿！'));
 }
 
-renderNotes(); updateBadge();
+init();
 </script>
 </body>
 </html>

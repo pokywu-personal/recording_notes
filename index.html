@@ -39,16 +39,18 @@
   .info-input::placeholder { color: var(--ink3); font-weight: 400; }
   .hint-card { background: var(--accent-light); border: 0.5px solid rgba(43,91,168,0.2); border-radius: 14px; padding: 14px 16px; margin-bottom: 14px; }
   .hint-card p { font-size: 13px; color: var(--accent); line-height: 1.75; }
+  /* FIX 1: wake lock indicator */
+  .wakelock-bar { display: flex; align-items: center; gap: 8px; padding: 8px 14px; border-radius: 12px; margin-bottom: 10px; font-size: 12px; background: var(--success-light); color: var(--success); }
+  .wakelock-bar.inactive { background: #F1EFE8; color: var(--ink3); }
   .sync-bar { display: flex; align-items: center; gap: 8px; padding: 10px 14px; border-radius: 12px; margin-bottom: 14px; font-size: 13px; }
   .sync-bar.ok { background: var(--success-light); color: var(--success); }
   .sync-bar.err { background: #FAEAEA; color: var(--danger); }
   .sync-bar.loading { background: #F1EFE8; color: var(--ink3); }
-  .sync-bar.setup { background: var(--amber-light); color: var(--amber); }
   .sync-dot { width: 7px; height: 7px; border-radius: 50%; background: currentColor; flex-shrink: 0; }
   .sync-dot.pulse { animation: pulse 1.4s ease-in-out infinite; }
   @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:0.3} }
-  .record-btn-wrap { display: flex; flex-direction: column; align-items: center; margin: 20px 0 18px; gap: 16px; }
-  .record-btn { width: 168px; height: 168px; border-radius: 50%; border: none; background: var(--accent); cursor: pointer; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 10px; box-shadow: 0 6px 32px rgba(43,91,168,0.38); transition: transform 0.15s; -webkit-appearance: none; }
+  .record-btn-wrap { display: flex; flex-direction: column; align-items: center; margin: 16px 0 14px; gap: 14px; }
+  .record-btn { width: 160px; height: 160px; border-radius: 50%; border: none; background: var(--accent); cursor: pointer; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 10px; box-shadow: 0 6px 32px rgba(43,91,168,0.38); transition: transform 0.15s; -webkit-appearance: none; }
   .record-btn:active { transform: scale(0.95); }
   .record-btn.recording { background: var(--danger); box-shadow: 0 6px 32px rgba(184,50,50,0.38); animation: breathe 1.8s ease-in-out infinite; }
   .record-btn svg { width: 52px; height: 52px; stroke: #fff; fill: none; stroke-width: 1.6; stroke-linecap: round; stroke-linejoin: round; }
@@ -58,7 +60,7 @@
   .record-timer { font-size: 32px; font-family: 'Noto Serif TC', serif; color: var(--ink); text-align: center; min-height: 40px; letter-spacing: 0.05em; }
   .transcript-card { background: var(--card); border: 0.5px solid var(--border); border-radius: 16px; padding: 16px 18px; margin-bottom: 14px; box-shadow: var(--shadow); }
   .transcript-label { font-size: 12px; color: var(--ink3); margin-bottom: 8px; letter-spacing: 0.06em; }
-  textarea.transcript-edit { width: 100%; border: none; background: transparent; font-size: 15px; font-family: 'Noto Sans TC', sans-serif; color: var(--ink); line-height: 1.8; outline: none; resize: none; min-height: 100px; }
+  textarea.transcript-edit { width: 100%; border: none; background: transparent; font-size: 15px; font-family: 'Noto Sans TC', sans-serif; color: var(--ink); line-height: 1.8; outline: none; resize: none; min-height: 80px; }
   .action-row { display: flex; gap: 10px; margin-bottom: 14px; }
   .btn { border-radius: 14px; border: 0.5px solid var(--border2); background: var(--card); color: var(--ink); font-size: 16px; font-family: 'Noto Sans TC', sans-serif; font-weight: 500; padding: 15px 20px; cursor: pointer; flex: 1; transition: background 0.15s, transform 0.1s; -webkit-appearance: none; }
   .btn:active { transform: scale(0.97); background: #f0ede8; }
@@ -68,6 +70,7 @@
   .section-header { display: flex; justify-content: space-between; align-items: center; padding: 22px 0 12px; }
   .section-header h2 { font-family: 'Noto Serif TC', serif; font-size: 22px; font-weight: 500; }
   .refresh-btn { font-size: 13px; color: var(--accent); background: none; border: none; cursor: pointer; font-family: 'Noto Sans TC', sans-serif; padding: 4px 8px; }
+  /* FIX 3: note card — full text, paginated */
   .note-card { background: var(--card); border: 0.5px solid var(--border); border-radius: 16px; padding: 16px 18px; margin-bottom: 12px; box-shadow: var(--shadow); }
   .note-top { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 10px; }
   .note-meta-group { display: flex; flex-direction: column; gap: 3px; }
@@ -76,8 +79,12 @@
   .badge { font-size: 12px; font-weight: 500; padding: 3px 10px; border-radius: 20px; }
   .badge-recorded { background: var(--accent-light); color: var(--accent); }
   .badge-manual { background: var(--amber-light); color: var(--amber); }
-  .note-body { font-size: 14px; color: var(--ink2); line-height: 1.8; }
-  .note-actions { display: flex; gap: 8px; margin-top: 12px; }
+  .note-body { font-size: 14px; color: var(--ink2); line-height: 1.85; white-space: pre-wrap; word-break: break-word; }
+  .note-pages { display: flex; align-items: center; gap: 10px; margin-top: 12px; }
+  .page-btn { background: none; border: 0.5px solid var(--border2); border-radius: 8px; padding: 5px 12px; font-size: 13px; font-family: 'Noto Sans TC', sans-serif; color: var(--ink2); cursor: pointer; }
+  .page-btn:disabled { opacity: 0.3; cursor: default; }
+  .page-info { font-size: 12px; color: var(--ink3); flex: 1; text-align: center; }
+  .note-actions { display: flex; gap: 8px; margin-top: 10px; }
   .btn-ghost { background: none; border: 0.5px solid var(--border2); border-radius: 10px; color: var(--ink2); font-size: 13px; font-family: 'Noto Sans TC', sans-serif; padding: 7px 14px; cursor: pointer; }
   .btn-ghost.danger { color: var(--danger); border-color: rgba(184,50,50,0.25); }
   .empty-state { text-align: center; padding: 60px 20px; color: var(--ink3); }
@@ -123,33 +130,27 @@
   <div style="font-size:52px; margin-bottom:16px;">🏥</div>
   <h2>設定共用連線</h2>
   <p>請依照以下步驟，建立 Google Sheets 讓全家共用記錄。只需設定一次。</p>
-
   <div class="step">
     <div class="step-num">步驟 1</div>
     <div class="step-text">用您的 Google 帳號，開啟一個新的 <a href="https://sheets.new" target="_blank">Google 試算表 →</a></div>
   </div>
-
   <div class="step">
     <div class="step-num">步驟 2</div>
     <div class="step-text">在試算表上方選單點「擴充功能」→「Apps Script」，開啟指令碼編輯器。</div>
   </div>
-
   <div class="step">
     <div class="step-num">步驟 3</div>
-    <div class="step-text">把編輯器裡原有的程式碼<strong>全部刪掉</strong>，貼上我們另外提供的 <code>apps-script.js</code> 程式碼，然後點上方的💾「儲存」。</div>
+    <div class="step-text">把編輯器裡原有的程式碼<strong>全部刪掉</strong>，貼上 <code>apps-script.js</code> 的內容，點💾「儲存」。</div>
   </div>
-
   <div class="step">
     <div class="step-num">步驟 4</div>
-    <div class="step-text">點「部署」→「新增部署作業」→ 類型選「網頁應用程式」→ 存取權選「<strong>所有人</strong>」→ 點「部署」。Google 會要求您授權，請同意。</div>
+    <div class="step-text">點「部署」→「新增部署作業」→ 類型選「網頁應用程式」→ 存取權選「<strong>所有人</strong>」→「部署」→ 授權同意。</div>
   </div>
-
   <div class="step">
     <div class="step-num">步驟 5</div>
-    <div class="step-text">部署完成後，複製「網頁應用程式網址」，貼到下方欄位。</div>
+    <div class="step-text">複製「網頁應用程式網址」，貼到下方。</div>
     <input class="url-input" id="setup-url-input" type="url" placeholder="https://script.google.com/macros/s/..." />
   </div>
-
   <button class="btn btn-primary btn-full" onclick="saveScriptUrl()" style="margin-top:8px;">確認，開始使用</button>
 </div>
 
@@ -162,6 +163,11 @@
     <div class="page-header">
       <div class="date-line" id="today-date"></div>
       <h1>加護病房照護助手</h1>
+    </div>
+
+    <!-- FIX 1: wake lock status bar -->
+    <div id="wakelock-bar" class="wakelock-bar inactive">
+      <span id="wakelock-text">💡 錄音時螢幕會保持亮起</span>
     </div>
 
     <div id="sync-bar" class="sync-bar loading">
@@ -185,7 +191,7 @@
     </div>
 
     <div class="hint-card">
-      <p>💡 先填好醫師姓名，再按下錄音鈕，把手機靠近說話者，系統會自動辨識普通話並轉為文字。</p>
+      <p>💡 先填好醫師姓名，再按下錄音鈕，把手機靠近說話者。錄音期間螢幕會自動保持亮起，不會中斷。</p>
     </div>
 
     <div class="record-btn-wrap">
@@ -200,12 +206,12 @@
 
     <div class="transcript-card" id="transcript-card" style="display:none;">
       <div class="transcript-label">自動辨識文字（可直接修改）</div>
-      <textarea class="transcript-edit" id="transcript-area" placeholder="辨識文字將顯示於此，也可以直接在這裡打字補充。" rows="5"></textarea>
+      <textarea class="transcript-edit" id="transcript-area" placeholder="辨識文字將顯示於此，也可以直接打字補充。" rows="5"></textarea>
     </div>
 
     <div class="transcript-card">
       <div class="transcript-label">手動輸入備忘</div>
-      <textarea class="transcript-edit" id="manual-area" placeholder="若無法錄音，可在此手動記錄醫師或護理師說的內容⋯⋯" rows="4"></textarea>
+      <textarea class="transcript-edit" id="manual-area" placeholder="若無法錄音，可在此手動記錄醫師說的內容⋯⋯" rows="4"></textarea>
     </div>
 
     <div class="action-row">
@@ -214,15 +220,15 @@
   </div>
 
   <nav class="bottom-nav">
-    <button class="nav-btn active" onclick="switchScreen('record')">
+    <button class="nav-btn active" onclick="switchScreen('record', this)">
       <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="3" fill="currentColor" stroke="none"/></svg>
       錄音
     </button>
-    <button class="nav-btn" onclick="switchScreen('notes')">
+    <button class="nav-btn" onclick="switchScreen('notes', this)">
       <svg viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>
       記錄
     </button>
-    <button class="nav-btn" onclick="switchScreen('summary')">
+    <button class="nav-btn" onclick="switchScreen('summary', this)">
       <svg viewBox="0 0 24 24"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg>
       每日摘要
     </button>
@@ -240,15 +246,15 @@
     <div id="notes-list"></div>
   </div>
   <nav class="bottom-nav">
-    <button class="nav-btn" onclick="switchScreen('record')">
+    <button class="nav-btn" onclick="switchScreen('record', this)">
       <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="3" fill="currentColor" stroke="none"/></svg>
       錄音
     </button>
-    <button class="nav-btn active" onclick="switchScreen('notes')">
+    <button class="nav-btn active" onclick="switchScreen('notes', this)">
       <svg viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>
       記錄
     </button>
-    <button class="nav-btn" onclick="switchScreen('summary')">
+    <button class="nav-btn" onclick="switchScreen('summary', this)">
       <svg viewBox="0 0 24 24"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg>
       每日摘要
     </button>
@@ -279,15 +285,15 @@
     <button class="btn btn-full" onclick="resetSetup()" style="margin-bottom:14px; font-size:13px; color:var(--ink3);">重新設定 Google Sheets 連線</button>
   </div>
   <nav class="bottom-nav">
-    <button class="nav-btn" onclick="switchScreen('record')">
+    <button class="nav-btn" onclick="switchScreen('record', this)">
       <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="3" fill="currentColor" stroke="none"/></svg>
       錄音
     </button>
-    <button class="nav-btn" onclick="switchScreen('notes')">
+    <button class="nav-btn" onclick="switchScreen('notes', this)">
       <svg viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>
       記錄
     </button>
-    <button class="nav-btn active" onclick="switchScreen('summary')">
+    <button class="nav-btn active" onclick="switchScreen('summary', this)">
       <svg viewBox="0 0 24 24"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg>
       每日摘要
     </button>
@@ -310,6 +316,7 @@
 </div>
 
 <script>
+// ── STATE ──
 let notes = [];
 let recognition = null;
 let isRecording = false;
@@ -318,6 +325,10 @@ let recordSeconds = 0;
 let pendingDeleteId = null;
 let accumulatedTranscript = '';
 let SCRIPT_URL = localStorage.getItem('icu_script_url') || '';
+let wakeLock = null;
+// per-note pagination state: noteId -> currentPage
+let notePages = {};
+const CHARS_PER_PAGE = 300;
 
 // ── INIT ──
 function init() {
@@ -378,24 +389,45 @@ function setSyncBar(state, msg) {
 }
 
 // ── SCREEN ──
-function switchScreen(name) {
+function switchScreen(name, btn) {
   document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
   document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
   document.getElementById('screen-' + name).classList.add('active');
-  event.currentTarget.classList.add('active');
+  if (btn) btn.classList.add('active');
   if (name === 'notes') loadNotes();
+}
+
+// ── WAKE LOCK (FIX 1) ──
+async function requestWakeLock() {
+  if (!('wakeLock' in navigator)) return; // not supported — silently skip
+  try {
+    wakeLock = await navigator.wakeLock.request('screen');
+    const bar = document.getElementById('wakelock-bar');
+    const txt = document.getElementById('wakelock-text');
+    if (bar) { bar.classList.remove('inactive'); }
+    if (txt) txt.textContent = '🔆 螢幕保持亮起中，錄音不會中斷';
+    wakeLock.addEventListener('release', () => {
+      // re-acquire if still recording (e.g. tab became visible again)
+      if (isRecording) requestWakeLock();
+    });
+  } catch(e) { /* permission denied or not supported — silently continue */ }
+}
+
+function releaseWakeLock() {
+  if (wakeLock) { wakeLock.release(); wakeLock = null; }
+  const bar = document.getElementById('wakelock-bar');
+  const txt = document.getElementById('wakelock-text');
+  if (bar) bar.classList.add('inactive');
+  if (txt) txt.textContent = '💡 錄音時螢幕會保持亮起';
 }
 
 // ── GOOGLE SHEETS API ──
 async function apiGet() {
-  const res = await fetch(SCRIPT_URL, { method: 'GET' });
+  const res = await fetch(SCRIPT_URL, { method:'GET' });
   return res.json();
 }
 async function apiPost(payload) {
-  await fetch(SCRIPT_URL, {
-    method: 'POST',
-    body: JSON.stringify(payload)
-  });
+  await fetch(SCRIPT_URL, { method:'POST', body: JSON.stringify(payload) });
 }
 
 async function loadNotes() {
@@ -424,8 +456,21 @@ function setRecordingUI(on) {
   document.getElementById('btn-label').textContent = on ? '點我停止' : '點我開始錄音';
 }
 
+// FIX 2: punctuation injection — add 。after each final segment
+function addPunctuation(text) {
+  if (!text) return text;
+  // trim trailing space
+  text = text.trimEnd();
+  // if already ends with CJK punctuation, leave it
+  if (/[。！？，、]$/.test(text)) return text;
+  // if ends with English sentence-ending punctuation, leave it
+  if (/[.!?,]$/.test(text)) return text;
+  // otherwise append 。
+  return text + '。';
+}
+
 function startRecognition() {
-  if (!isRecording) return; // guard: don't restart if already stopped
+  if (!isRecording) return;
   const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
   recognition = new SR();
   recognition.continuous = true;
@@ -433,33 +478,33 @@ function startRecognition() {
   recognition.lang = 'zh-TW';
 
   recognition.onresult = (e) => {
-    let interim = '', final = '';
+    let interim = '';
     for (let i = e.resultIndex; i < e.results.length; i++) {
-      if (e.results[i].isFinal) final += e.results[i][0].transcript;
-      else interim += e.results[i][0].transcript;
+      if (e.results[i].isFinal) {
+        // FIX 2: add sentence break after each final result
+        const segment = addPunctuation(e.results[i][0].transcript.trim());
+        accumulatedTranscript += segment + '\n';
+      } else {
+        interim += e.results[i][0].transcript;
+      }
     }
-    if (final) accumulatedTranscript += final;
-    document.getElementById('transcript-area').value = accumulatedTranscript + interim;
+    const area = document.getElementById('transcript-area');
+    area.value = accumulatedTranscript + (interim ? interim : '');
+    area.scrollTop = area.scrollHeight;
     document.getElementById('transcript-card').style.display = 'block';
   };
 
   recognition.onerror = (e) => {
-    // 'no-speech' and 'aborted' are normal — ignore them
     if (e.error === 'no-speech' || e.error === 'aborted') return;
-    document.getElementById('record-status').textContent = '麥克風發生錯誤（' + e.error + '），請改用手動輸入。';
+    document.getElementById('record-status').textContent = '麥克風錯誤（' + e.error + '），請改用手動輸入。';
     stopRecording();
   };
 
-  // iOS PWA fix: wrap restart in setTimeout to avoid lock-up
   recognition.onend = () => {
     if (isRecording) setTimeout(() => startRecognition(), 150);
   };
 
-  try {
-    recognition.start();
-  } catch(err) {
-    // already started — ignore
-  }
+  try { recognition.start(); } catch(err) { /* already started */ }
 }
 
 async function startRecording() {
@@ -469,12 +514,9 @@ async function startRecording() {
     document.getElementById('transcript-card').style.display = 'block';
     return;
   }
-
-  // iOS PWA fix: explicitly request mic permission first before touching SR
   try {
     document.getElementById('record-status').textContent = '請允許使用麥克風⋯⋯';
     const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
-    // permission granted — release the stream, SR will open its own
     stream.getTracks().forEach(t => t.stop());
   } catch(err) {
     document.getElementById('record-status').textContent = '無法取得麥克風權限，請在設定中允許。';
@@ -489,6 +531,9 @@ async function startRecording() {
   document.getElementById('record-status').textContent = '錄音中⋯⋯請將手機靠近說話者';
   document.getElementById('transcript-card').style.display = 'block';
 
+  // FIX 1: acquire wake lock so screen stays on
+  await requestWakeLock();
+
   startRecognition();
 
   timerInterval = setInterval(() => {
@@ -500,19 +545,21 @@ async function startRecording() {
 }
 
 function stopRecording() {
-  isRecording = false; // set first so onend guard fires correctly
+  isRecording = false;
   clearInterval(timerInterval);
   if (recognition) {
-    recognition.onend = null; // detach before stop to prevent any restart
+    recognition.onend = null;
     recognition.onerror = null;
     try { recognition.stop(); } catch(e) {}
     recognition = null;
   }
+  // FIX 1: release wake lock
+  releaseWakeLock();
   setRecordingUI(false);
   document.getElementById('record-status').textContent = '錄音結束，請確認文字後儲存。';
 }
 
-// ── SAVE NOTE ──
+// ── SAVE ──
 async function saveCurrentNote() {
   const transcript = document.getElementById('transcript-area').value.trim();
   const manual = document.getElementById('manual-area').value.trim();
@@ -533,7 +580,7 @@ async function saveCurrentNote() {
   };
 
   try {
-    await apiPost({ action: 'save', ...note });
+    await apiPost({ action:'save', ...note });
     notes.unshift(note);
     setSyncBar('ok', '已同步　記錄成功儲存到 Google Sheets');
     showToast('記錄已儲存並同步！');
@@ -551,7 +598,68 @@ async function saveCurrentNote() {
   accumulatedTranscript = '';
 }
 
-// ── RENDER ──
+// ── FIX 3: PAGINATED NOTE RENDER ──
+function getPages(text) {
+  // split into pages of ~CHARS_PER_PAGE, breaking at newlines or punctuation
+  const pages = [];
+  let remaining = text;
+  while (remaining.length > 0) {
+    if (remaining.length <= CHARS_PER_PAGE) {
+      pages.push(remaining);
+      break;
+    }
+    // try to break at newline within the window
+    let cut = remaining.lastIndexOf('\n', CHARS_PER_PAGE);
+    if (cut < 80) cut = remaining.lastIndexOf('。', CHARS_PER_PAGE);
+    if (cut < 80) cut = CHARS_PER_PAGE;
+    pages.push(remaining.substring(0, cut + 1).trim());
+    remaining = remaining.substring(cut + 1).trimStart();
+  }
+  return pages.filter(p => p.length > 0);
+}
+
+function renderNoteCard(n) {
+  const pages = getPages(n.text);
+  const totalPages = pages.length;
+  const currentPage = notePages[n.id] || 0;
+  const pageText = pages[currentPage] || '';
+
+  const pagerHtml = totalPages > 1 ? `
+    <div class="note-pages">
+      <button class="page-btn" onclick="changePage(${n.id}, -1)" ${currentPage === 0 ? 'disabled' : ''}>← 上一頁</button>
+      <span class="page-info">第 ${currentPage + 1} 頁，共 ${totalPages} 頁</span>
+      <button class="page-btn" onclick="changePage(${n.id}, 1)" ${currentPage === totalPages - 1 ? 'disabled' : ''}>下一頁 →</button>
+    </div>` : '';
+
+  return `
+    <div class="note-card" id="notecard-${n.id}">
+      <div class="note-top">
+        <div class="note-meta-group">
+          <div class="note-doc">${n.doctor}</div>
+          <div class="note-time">${n.date}　${n.time}${n.ward ? '　' + n.ward : ''}</div>
+        </div>
+        <span class="badge badge-${n.type}">${n.type === 'recorded' ? '🎙 語音' : '✏️ 手動'}</span>
+      </div>
+      <div class="note-body">${pageText.replace(/\n/g, '<br>')}</div>
+      ${pagerHtml}
+      <div class="note-actions">
+        <button class="btn-ghost danger" onclick="confirmDelete(${n.id})">刪除</button>
+      </div>
+    </div>`;
+}
+
+function changePage(noteId, delta) {
+  const note = notes.find(n => n.id === noteId);
+  if (!note) return;
+  const pages = getPages(note.text);
+  const current = notePages[noteId] || 0;
+  const next = Math.max(0, Math.min(pages.length - 1, current + delta));
+  notePages[noteId] = next;
+  // re-render just this card
+  const el = document.getElementById('notecard-' + noteId);
+  if (el) el.outerHTML = renderNoteCard(note);
+}
+
 function renderNotes() {
   const list = document.getElementById('notes-list');
   const line = document.getElementById('note-count-line');
@@ -560,21 +668,7 @@ function renderNotes() {
     list.innerHTML = '<div class="empty-state"><div class="icon">📋</div><p>尚無記錄。<br>請到「錄音」頁面新增第一筆記錄。</p></div>';
     return;
   }
-  list.innerHTML = notes.map(n => `
-    <div class="note-card">
-      <div class="note-top">
-        <div class="note-meta-group">
-          <div class="note-doc">${n.doctor}</div>
-          <div class="note-time">${n.date}　${n.time}${n.ward ? '　' + n.ward : ''}</div>
-        </div>
-        <span class="badge badge-${n.type}">${n.type === 'recorded' ? '🎙 語音' : '✏️ 手動'}</span>
-      </div>
-      <div class="note-body">${n.text.replace(/\n/g,'<br>').substring(0,300)}${n.text.length>300?'⋯⋯':''}</div>
-      <div class="note-actions">
-        <button class="btn-ghost danger" onclick="confirmDelete(${n.id})">刪除</button>
-      </div>
-    </div>
-  `).join('');
+  list.innerHTML = notes.map(n => renderNoteCard(n)).join('');
 }
 
 // ── DELETE ──
@@ -585,8 +679,9 @@ function confirmDelete(id) {
     closeDialog();
     setSyncBar('loading', '刪除中⋯⋯');
     try {
-      await apiPost({ action: 'delete', id: pendingDeleteId });
+      await apiPost({ action:'delete', id: pendingDeleteId });
       notes = notes.filter(n => n.id !== pendingDeleteId);
+      delete notePages[pendingDeleteId];
       renderNotes();
       setSyncBar('ok', '已同步　記錄已刪除');
       showToast('已刪除。');
@@ -611,12 +706,12 @@ async function generateSummary() {
 
   try {
     const res = await fetch('https://api.anthropic.com/v1/messages', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
+      method:'POST',
+      headers:{ 'Content-Type':'application/json' },
       body: JSON.stringify({
-        model: 'claude-sonnet-4-20250514',
-        max_tokens: 1200,
-        system: `你是一位溫暖、專業的醫療紀錄助理，正在幫助家屬了解病人在加護病房的狀況。請根據以下查房記錄，用繁體中文（台灣慣用語）、淺白易懂的方式整理摘要。
+        model:'claude-sonnet-4-20250514',
+        max_tokens:1200,
+        system:`你是一位溫暖、專業的醫療紀錄助理，正在幫助家屬了解病人在加護病房的狀況。請根據以下查房記錄，用繁體中文（台灣慣用語）、淺白易懂的方式整理摘要。
 
 請只回傳以下 JSON 格式，不要加任何說明文字或 markdown 標記：
 {
@@ -628,7 +723,7 @@ async function generateSummary() {
 medications：列出記錄中明確提及的藥物或治療，若無則給空陣列。
 questions：根據記錄中尚未釐清或重要的地方，建議 2～4 個問題。
 語氣請保持平穩關懷，避免艱澀醫學術語，全程使用繁體中文。`,
-        messages: [{ role: 'user', content: `加護病房查房記錄如下：\n\n${notesText}` }]
+        messages:[{ role:'user', content:`加護病房查房記錄如下：\n\n${notesText}` }]
       })
     });
     const data = await res.json();
